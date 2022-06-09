@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "vue2-element-manage",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: build - vue2-element-manage",
+			"detail": "vue-cli-service build"
+		}
+	]
+}
