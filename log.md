@@ -270,14 +270,70 @@
   - 在 components 文件夹新建 CommonAside 组件，使用 elementUI 的 navmenu 模板代码
 
     - 在data中添加menu数组，存放数据
+
     - 添加computed计算属性，分情况渲染有无二级菜单的项目
+
+      ```
+      computed: {
+          noChildren() {
+            return this.menu.filter((item) => !item.children);
+          },
+          hasChildren() {
+            return this.menu.filter((item) => item.children);
+          }
+        }
+      ```
+
     - 遍历渲染菜单列表
 
-    ```
-    
-    ```
+      ```vue
+      <!-- 一级菜单 -->
+      <el-menu-item v-for="item in noChildren" :key="item.path" :index="item.path">
+          <i :class="`el-icon-${item.icon}`"></i>
+          <span slot="title">{{ item.label }}</span>
+      </el-menu-item>
+      <!-- 二级菜单 -->
+      <el-submenu v-for="item in hasChildren" :key="item.path" :index="item.path">
+          <template slot="title">
+              <i :class="`el-icon-${item.icon}`"></i>
+              <span slot="title">{{ item.label }}</span>
+          </template>
+          <el-menu-item-group>
+              <el-menu-item v-for="subItem in item.children" :key="subItem.path">
+                  <i :class="`el-icon-${subItem.icon}`"></i>
+                  <span slot="title">{{ subItem.label }}</span>
+              </el-menu-item>
+          </el-menu-item-group>
+      </el-submenu>
+      ```
 
-    
+      ==注意：在elementUI的 el-submenu 中，`:index`字段要求为字符串格式，需要在其后添加`+''` 转化为字符串==
+
+    - 修改样式
+
+      ```vue
+      <el-menu default-active="1-4-1" class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b" @open="handleOpen" @close="handleClose"
+              :collapse="isCollapse">
+          ...
+      
+      <style lang="scss" scoped>
+      .el-menu-vertical-demo:not(.el-menu--collapse) {
+          width: 200px;
+          min-height: 400px;
+      }
+      
+      .el-menu {
+          height: 100%;
+          border: none;
+      
+          h3 {
+              color: #fff;
+              text-align: center;
+              line-height: 48px;
+          }
+      }
+      </style>
+      ```
 
   - 在 Home.vue 引入 CommonAside 
 
@@ -304,7 +360,68 @@
     </template>
     ```
 
-  - 
+  - 为侧边栏绑定点击跳转事件
+
+    - 为 el-menu-item 标签触发click绑定clickMenu方法
+
+      ```
+      methods: {
+      	...
+          clickMenu(item) {
+              this.$router.push({
+                  name: item.name
+              }).catch(e => { })
+          }
+      }
+      ```
+
+      > `$router.push()` 不同于传统的push方法，它会向 VueRouter `history` 栈添加一个新记录，所以，当用户点击浏览器后退按钮时，可以返回到之前的 `URL`。 也可以说，点击` <router-link :to="..."> ` 等同于调用 `router.push(...)`。  该方法的参数可以是一个字符串路径，或者一个描述地址的对象。 
+
+      这里的`this.$router.push()`可以依据name匹配路由实现页面跳转。
+
+      此外，重复点击相同路由会导致报错，`.catch(e => { })`可捕获异常并阻止报错。
+
+    - 修改路由配置
+
+      ==这里需要使用组件嵌套，防止命名混淆，将Home.vue重命名为Main.vue，Home.vue为新空白组件==
+
+      ```js
+      const routes = [
+          // 定义根目录下的路由，component为按需引入的组件页面home
+          {
+              path: '/',
+              name: 'Main',
+              component: Main,
+              // 路由嵌套
+              children: [
+                  {
+                      path: '/home',
+                      name: 'home',
+                      component: Home
+                  },
+                  {
+                      path: '/user',
+                      name: 'user',
+                      component: User
+                  }, 
+                  {
+                      path: '/mall',
+                      name: 'mall',
+                      component: Mall
+                  }
+              ]
+          },
+      ```
+
+    - 在Main.vue中添加 router-view 标签，在main区域显示匹配的路由组件
+
+      ```
+      <el-main>
+          <router-view></router-view>
+      </el-main>
+      ```
+
+      
 
   侧边栏实现完成
 

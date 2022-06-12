@@ -6,17 +6,21 @@
 </template>
 
 <script>
-import ElementUITest from './components/ElementUITest.vue'
+// import ElementUITest from './components/ElementUITest.vue'
 
 export default {
   name: 'App',
   components: {
-    ElementUITest
+    // ElementUITest
   }
 }
 </script>
 
 <style>
+html, body {
+  margin: 0;
+  padding: 0;
+}
 #app {
   height: 100vh;
 }
