@@ -98,9 +98,9 @@
     ```
   
     全局安装8M，局部安装1.6M
-  
-  ## 6-9
-  
+
+## 6-9
+
 - 使用单文件组件
 
   - 单文件组件必须在vue-cli下运行
@@ -122,8 +122,8 @@
   - 实现模式：
     - hash 路由：监听 url 中 hash 的变化（#后），然后渲染不同的内容，这种路由不向服务器发送请求，不需要服务端的支持；
     - history 路由：监听 url 中的路径变化，需要客户端和服务端共同的支持；
-  
-  ## 6-10
+
+## 6-10
 
 - 引入vue-router
 
@@ -206,4 +206,107 @@
 
   - 使用elementUI Container容器
 
+    ```html
+    // Home.vue
+    <el-container>
+      <el-aside width="200px">Aside</el-aside>
+      <el-container>
+        <el-header>Header</el-header>
+        <el-main>Main</el-main>
+      </el-container>
+    </el-container>
+```
     
+
+## 6-12
+
+- 引入Sass
+
+  - 安装Sass
+
+    >  [vue项目集成sass/scss_清虚桂意的博客-CSDN博客_vue3 安装scss](https://blog.csdn.net/weixin_45031595/article/details/99694829?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-3-99694829-blog-90475828.pc_relevant_paycolumn_v3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-3-99694829-blog-90475828.pc_relevant_paycolumn_v3&utm_relevant_index=5) 
+
+    ```
+    // 手动安装
+    npm i node-sass sass-loader -D
+    
+    // Home.vue
+    // 使用SCSS
+    // scoped属性用于指定样式的局部作用域
+    // 在vue中，App.vue相当于根容器，不设置scoped。所以一般在App.vue中引用公共样式。而在其它.vue页面中用scoped，代表当前样式只作用于当前.vue页面。不作用于其它.vue页面。
+    <style lang="scss" scoped>
+    	$color = red;
+    </style>
+    ```
+
+  - 自定义样式
+
+    ```
+    // Home.vue
+    ...
+    	<!-- width 是 elementUI 自带的 Attribute -->
+        <el-aside width="auto">
+          <common-aside></common-aside>
+        </el-aside>
+    ...
+    
+    <style lang="scss" scoped>
+        .el-container {
+        	height: 100%;
+        }
+        .el-header {
+        	background-color: #333;
+        }
+        .el-main {
+        	padding-top: 0;
+        }
+    </style>
+    ```
+
+    在App.vue中删除多余组件，至此首页ui搭建框架完成
+
+- 侧边栏实现
+
+  - 在 components 文件夹新建 CommonAside 组件，使用 elementUI 的 navmenu 模板代码
+
+    - 在data中添加menu数组，存放数据
+    - 添加computed计算属性，分情况渲染有无二级菜单的项目
+    - 遍历渲染菜单列表
+
+    ```
+    
+    ```
+
+    
+
+  - 在 Home.vue 引入 CommonAside 
+
+    ```
+    import CommonAside from '../components/CommonAside.vue';
+    export default {
+      name: "Home",
+      components: {
+        CommonAside
+      },
+      data() {
+        return {};
+      },
+    };
+    ```
+
+    ```
+    <template>
+    ...
+        <el-aside width="200px">
+          <common-aside></common-aside>
+        </el-aside>
+    ...
+    </template>
+    ```
+
+  - 
+
+  侧边栏实现完成
+
+- 
+
