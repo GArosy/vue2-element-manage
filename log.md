@@ -1,13 +1,10 @@
 # vue2-element-manage 搭建日志
 ## 6-7
 
-- 创建项目
+### 创建项目
 
-  - 选型
+- 建立github和本地库
 
-  - 建立github和本地库
-
-    
 
 - 安装 @vue/cli 脚手架
 
@@ -111,14 +108,14 @@
 
     
 
-- 前端路由：
+### 配置前端路由
 
-  - 概念：前端不同页面的状态管理器，可以不向后台发送请求而直接通过前端技术实现多个页面的效果。SPA（单页应用，可以实现更流畅的交互体验，缺点是SEO差）衍生出的需求，伴随MVVM出现。其本质是检测url变化，截获url地址后匹配路由规则，实现无需刷新即可跳转页面。在SPA项目中，不同功能之间的切换要通过前端路由解决。
+- 概念：前端不同页面的状态管理器，可以不向后台发送请求而直接通过前端技术实现多个页面的效果。SPA（单页应用，可以实现更流畅的交互体验，缺点是SEO差）衍生出的需求，伴随MVVM出现。其本质是检测url变化，截获url地址后匹配路由规则，实现无需刷新即可跳转页面。在SPA项目中，不同功能之间的切换要通过前端路由解决。
 - 工作方式：
-    - 用户点击路由链接
-    - url地址栏Hash值变化
-    - 前端路由监听到Hash地址变化
-    - 前端路由将当前Hash地址对应的组件渲染到浏览器中
+  - 用户点击路由链接
+  - url地址栏Hash值变化
+  - 前端路由监听到Hash地址变化
+  - 前端路由将当前Hash地址对应的组件渲染到浏览器中
   - 实现模式：
     - hash 路由：监听 url 中 hash 的变化（#后），然后渲染不同的内容，这种路由不向服务器发送请求，不需要服务端的支持；
     - history 路由：监听 url 中的路径变化，需要客户端和服务端共同的支持；
@@ -200,23 +197,25 @@
 
     
 
-- 首页UI搭建
 
-  - 分区：顶部 header、内容 main、侧边栏 aside
+### 首页UI搭建
 
-  - 使用elementUI Container容器
+- 分区：顶部 header、内容 main、侧边栏 aside
 
-    ```html
-    // Home.vue
+- 使用elementUI Container容器
+
+  ```html
+  // Home.vue
+  <el-container>
+    <el-aside width="200px">Aside</el-aside>
     <el-container>
-      <el-aside width="200px">Aside</el-aside>
-      <el-container>
-        <el-header>Header</el-header>
-        <el-main>Main</el-main>
-      </el-container>
+      <el-header>Header</el-header>
+      <el-main>Main</el-main>
     </el-container>
+  </el-container>
+  ```
 ```
-    
+  
 
 ## 6-12
 
@@ -226,18 +225,18 @@
 
     >  [vue项目集成sass/scss_清虚桂意的博客-CSDN博客_vue3 安装scss](https://blog.csdn.net/weixin_45031595/article/details/99694829?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-3-99694829-blog-90475828.pc_relevant_paycolumn_v3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-3-99694829-blog-90475828.pc_relevant_paycolumn_v3&utm_relevant_index=5) 
 
-    ```
+```
     // 手动安装
     npm i node-sass sass-loader -D
     
     // Home.vue
     // 使用SCSS
-    // scoped属性用于指定样式的局部作用域
-    // 在vue中，App.vue相当于根容器，不设置scoped。所以一般在App.vue中引用公共样式。而在其它.vue页面中用scoped，代表当前样式只作用于当前.vue页面。不作用于其它.vue页面。
     <style lang="scss" scoped>
     	$color = red;
     </style>
     ```
+    
+    ==scoped==：在vue中，App.vue相当于根容器，不设置scoped。所以一般在App.vue中引用公共样式。而在其它.vue页面中用scoped，代表当前样式只作用于当前.vue页面。不作用于其它.vue页面。
 
   - 自定义样式
 
@@ -249,7 +248,6 @@
           <common-aside></common-aside>
         </el-aside>
     ...
-    
     <style lang="scss" scoped>
         .el-container {
         	height: 100%;
@@ -421,9 +419,99 @@
       </el-main>
       ```
 
+      侧边栏实现完成
+
+
+
+## 6-13
+
+### 使用vuex
+
+- header实现
+  
+  - 在conponents文件夹新建CommonHeader.vue，在Main.vue中引入 
+  
+  - 引入elementUI的下拉菜单组件Dropdown
+  
+  - 使用scss编写header样式
+  
+  - 实现aside展开收起功能——使用Vuex进行组件通信
+  
+    - 安装vuex：`yarn add vuex@3` （==默认安装的高版本 Vuex 4.x 和Vue2不兼容，需要指定安装 3.x 版本==）
+  
+    - 在src下新建store文件夹，新建index.js
+  
+      ```
+      import Vue from 'vue';
+      import Vuex from 'vuex';
+      import Tab from './tab';
       
-
-  侧边栏实现完成
-
-- 
-
+      Vue.use(Vuex);
+      
+      export default new Vuex.Store({
+          modules: {
+      
+          }
+      })
+      ```
+  
+    - 在main.js引入vuex
+  
+      ```js
+      import store from './store';
+      new Vue({
+        render: h => h(App),
+        router,
+        store
+      }).$mount('#app')
+      ```
+  
+    - 在store下新建tab.js
+  
+      ```js
+      export default {
+          state: {
+              isCollapse: false
+          },
+          // 定义方法
+          mutations: {
+              collapseMenu (state) {
+                  state.isCollapse = !state.isCollapse;
+              }
+          }
+      }
+      ```
+  
+    - 在CommonAside中的computed属性中添加状态管理器，并删除原默认isCollapse数据：
+  
+      ```vue
+      computed: {
+              ...
+              isCollapse() {
+                  return this.$store.state.Tab.isCollapse
+              }
+          }
+      ```
+  
+    - 在CommonHeader中添加点击事件
+  
+      ```
+      methods: {
+              handleMenu() {
+                  this.$store.commit('collapseMenu')
+              }
+          },
+      ```
+  
+      展开收起功能实现，但收起之后标头文字会被拉长，需要在收起之后改变标头文字
+  
+    - aside收起改变标头文字
+  
+      ```
+      // CommonAside.vue
+      ...
+      <h3>{{ isCollapse ? '后台' : '通用后台管理系统' }}</h3>
+      ...
+      ```
+  
+      
