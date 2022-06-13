@@ -1,0 +1,22 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  h3 {
+    display: block;
+    font-size: 1.1em;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: normal;
+  }
+}
+
+.el-aside {
+    span {
+        font-size: 15px;
+    }
+}
