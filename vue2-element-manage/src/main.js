@@ -13,12 +13,16 @@ import ElementUI from 'element-ui';
 import router from './router';
 // 引入vuex
 import store from './store';
+// 引入axios
+import axios from 'axios';
 
 Vue.config.productionTip = false;
 
 Vue.use(ElementUI);
 // Vue.use(Button);
 
+// axios不是插件，如果想要全局使用axios，需要写入Vue原型中
+Vue.prototype.$http = axios;
 
 new Vue({
   render: h => h(App),

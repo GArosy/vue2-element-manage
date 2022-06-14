@@ -524,35 +524,138 @@
 
   Layout 布局使用基础的 24 分栏，通过 row 和 col 组件，并通过 col 组件的 `span` 属性可以自由地组合布局。  Row 组件 提供 `gutter` 属性来指定每一栏之间的间隔，默认间隔为 0。 
 
-  -  编写home组件页面布局
+  - 编写home组件页面布局
 
-    ```
-    <template>
-    <div>
-        <el-row class="home" :gutter="20">
-            <el-row style="margin-top: 20px;" :span="8">
-                <!-- 使用card组件 -->
-                <el-card shadow="hover">
-                    <div class="user">
-                        <img :src="userImg" alt="用户头像">
-                        <div class="user-info">
-                            <p class="name">Admin</p>
-                            <p class="access">超级管理员</p>
+    -  使用elementUI card组件
+  
+        ```
+        <template>
+        <div>
+            <el-row class="home" :gutter="20">
+                <el-row style="margin-top: 20px;" :span="8">
+                    <!-- 使用card组件 -->
+                    <el-card shadow="hover">
+                        <div class="user">
+                            <img :src="userImg" alt="用户头像">
+                            <div class="user-info">
+                                <p class="name">Admin</p>
+                                <p class="access">超级管理员</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="login-info">
-                        <p>上次登陆时间：<span>2022-6-14</span></p>
-                        <p>上次登陆地点：<span>上海</span></p>
-                    </div>
-                </el-card>
+                        <div class="login-info">
+                            <p>上次登陆时间：<span>2022-6-14</span></p>
+                            <p>上次登陆地点：<span>上海</span></p>
+                        </div>
+                    </el-card>
+                </el-row>
             </el-row>
-        </el-row>
-        <el-row class="home" :gutter="20">
-            <el-col style="margin-top: 20px; background-color: #000;" :span="8"></el-col>
-        </el-row>
-    </div>
-    </template>
+            <el-row class="home" :gutter="20">
+                <el-col style="margin-top: 20px; background-color: #000;" :span="8"></el-col>
+            </el-row>
+        </div>
+      </template>
+      ```
+  
+    - 使用elementUI table组件实现图表
+  
+      ```html
+    <el-table :data="tableData">
+          <el-table-column 
+        v-for="(value, name) in tableLabel" 
+          :key="name" 
+        :prop="name" 
+          :label="value">
+          </el-table-column>
+      </el-table>
+      ```
+      
+      当`el-table`元素中注入`data`对象数组后，在`el-table-column`中用`prop`属性来对应图表数据中的键名即可填入数据，用`label`属性来定义表格的列名。可以使用`width`属性来定义列宽。 
+      
+      这里使用了v-for遍历对象生成colomn，要注意v-for遍历数组与列表的区别。
+      
+    -  遍历el-card组件和grid布局实现订单组件
+    
+        ```html
+        <div class="count">
+            <el-card shadow="hover" v-for="item in countData" :key="item.name" style="padding: 0;">
+                <i class="icon" :class="`el-icon-${item.icon}`" :style="{ background: item.color }"></i>
+                <div class="detail">
+                    <p class="num">￥{{item.value}}</p>
+                    <p class="text">{{item.name}}</p>
+                </div>
+            </el-card>
+        </div>
+        
+        // home.scss
+        .count {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(15rem, 1fr));
+            grid-template-rows: repeat(2, auto);
+            grid-row-gap: 1em;
+            grid-gap: 1rem;
+            ...
+        }
+        ```
+    
+    -  最后三个图表
+    
+        ```html
+        <!-- card组件-图表 -->
+        <el-card shadow="hover" class="graph-line"></el-card>
+        <div class="graph">
+            <el-card shadow="hover" class="graph-col" :span="8"></el-card>
+            <el-card shadow="hover" class="graph-pie" :span="8"></el-card>
+        </div>
+        ```
+
+### 使用axios异步库
+
+- 下载
+
+  ```
+  yarn add axios
+  ```
+
+- 在main.js中配置
+
+  ```js
+  // 引入axios
+  import axios from 'axios';
+  
+  // axios不是插件，如果想要全局使用axios，需要写入Vue原型中
+  Vue.prototype.$http = axios;
+  ```
+
+- 在Home.vue中添加接口请求
+
+  ```js
+  // 接口请求一般写在mounted下
+  mounted() {
+      this.$http.get('/user?ID=12345')
+          .then(function (response) {
+              console.log(response);
+          })
+          .catch(function (error) {
+              console.log(error);
+          });
+  },
+  ```
+
+  打开F12的Network可以看到名为user?ID=12345的GET请求，说明axios引入成功。
+
+- axios二次封装
+
+  将配置文件添加到axios请求中，通过对当前项目的配置环境做判断，来改变一个接口请求的地址，并对所有的接口进行监听，在请求前后拦截。
+
+  - 新建@/api文件夹，新建axios.js
+  - 配置文件：新建@/config文件夹，新建index.js
+
+  - 创建axios实例
+
+    ```
+    
     ```
 
-  - 编写home.scss美化card组件
+    
 
+  

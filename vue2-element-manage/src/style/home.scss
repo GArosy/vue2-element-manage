@@ -1,52 +1,123 @@
-.el-card {
-    .user {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
+.home {
+    min-width: 1200px;
 
-        img {
-            height: 8rem;
-            margin-right: 3rem;
-            border: solid 1px #eee;
-            border-radius: 50%;
+    // 用户信息、图表部分
+    .el-card {
+        .user {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            img {
+                height: 8rem;
+                margin-right: 6rem;
+                border: solid 1px #eee;
+                border-radius: 50%;
+            }
+
+            .user-info {
+                display: inline-block;
+
+                .name {
+                    font-size: 28px;
+                    margin: 5px 0;
+                }
+
+                .access {
+                    margin: 5px 0;
+                    color: #888;
+                }
+            }
         }
 
-        .user-info {
+        .login-info:before {
+            content: "";
+            clear: both;
+            display: table;
+            width: 100%;
+            margin: 1rem 0;
+            border-bottom: solid 1px #ddd;
+        }
+
+        .login-info {
+            float: left;
+            width: 100%;
+            margin-bottom: 1rem;
+            color: #888;
+
+            span {
+                margin: 0;
+                margin-left: 7rem;
+                color: #000;
+            }
+
+            p {
+                margin: 0 0 5px 0;
+            }
+        }
+    }
+
+    // 订单部分
+    .count {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(15rem, 1fr));
+        grid-template-rows: repeat(2, 5rem);
+        grid-row-gap: 1em;
+        grid-gap: 1rem;
+        padding: 0;
+
+        .el-card {
+            border: none;
+            .icon {
+                padding: 25px;
+                margin-right: 1rem;
+                font-size: 30px;
+                color: #fff;
+            }
+
+            .el-card__body {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+
+                .detail {
+                    display: inline-block;
+
+                    .num {
+                        margin: 5px 0;
+                        line-height: 1;
+                        font-size: 25px;
+                    }
+
+                    .text {
+                        margin: 5px 0;
+                        font-size: 12px;
+                        color: #888;
+                    }
+                }
+            }
+        }
+    }
+    .graph-line {
+        height: 16rem;
+        margin-top: 1rem;
+    }
+    .graph {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 12rem;
+        grid-gap: 1rem;
+        margin-top: 1rem;
+        .graph-col {
+            display: inline-block;
+            
+        }
+        .graph-pie {
             display: inline-block;
 
-            .name {
-                font: 600 1.5em san-serif;
-                margin: 5px 0;
-            }
-            .access {
-                margin: 5px 0;
-                color: #888;
-            }
-        }
-    }
-
-    .login-info:before {
-        content: "";
-        clear: both;
-        display: table;
-        width: 100%;
-        margin: 1rem 0;
-        border-bottom: solid 1px #ddd;
-    }
-
-    .login-info {
-        float: left;
-        width: 100%;
-        margin-bottom: 1rem;
-        color: #888;
-
-        span {
-            margin: 0;
-            margin-left: 4rem;
-            color: #000;
-        }
-        p {
-            margin: 0 0 5px 0;
         }
     }
 }
