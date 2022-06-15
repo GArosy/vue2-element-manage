@@ -645,17 +645,235 @@
 
 - axios二次封装
 
+  对于项目而言，每次都需要对异常进行捕获或者处理的话，代码会很繁重冗余。我们需要将其公共部分封装起来，比如异常处理，请求拦截等。
+
   将配置文件添加到axios请求中，通过对当前项目的配置环境做判断，来改变一个接口请求的地址，并对所有的接口进行监听，在请求前后拦截。
-
-  - 新建@/api文件夹，新建axios.js
-  - 配置文件：新建@/config文件夹，新建index.js
-
-  - 创建axios实例
-
-    ```
-    
-    ```
-
-    
+  
+这里使用ES6中的Class特性来抽象出一个`HttpRequest`类，存放属性和方法。
+  
 
   
+  - 封装axios：新建@/api文件夹，新建axios.js。
+  
+  ```js
+    import axios from 'axios';
+  import config from '@/config/index.js';
+    // 根据当前环境获取API根目录
+    const baseURL = process.env.NODE_ENV === 'development' ? config.baseURL.dev : config.baseURL.prod;
+    
+    
+    ```
+  
+  - 配置文件：新建@/config文件夹，新建index.js。存放项目运行时所需要的配置 
+  
+    ```
+    export default {
+        baseURL: {
+            // 开发环境
+            dev: '/api/',
+            // 生产环境
+            prod: ''
+        }
+    }
+    ```
+  
+  - 定义HttpRequest class，添加属性和方法
+  
+    ```js
+    class HttpRequest {
+        // 属性
+        constructor(baseURL = '') {
+            this.baseURL = baseURL;
+        }
+    
+        // 方法
+        // 设置默认配置
+        getInsideConfig() {
+            const config = {
+                baseURL: this.baseURL,
+                header: {}
+            }
+            return config;
+        }
+    
+        // 拦截器
+        interceptors(instance) {
+            // 添加请求拦截器
+            instance.interceptors.request.use(function (config) {
+                // 在发送请求之前做些什么
+                return config;
+            }, function (error) {
+                // 对请求错误做些什么
+                return Promise.reject(error);
+            });
+    
+            // 添加响应拦截器
+            instance.interceptors.response.use(function (response) {
+                // 对响应数据做点什么
+                return response;
+            }, function (error) {
+                // 对响应错误做点什么
+                return Promise.reject(error);
+            });
+        }
+        // 请求
+        request() {
+            const instance = axios.create();
+            options = { ...this.getInsideConfig(), ...options };
+            this.interceptors(instance);
+            return instance(options);
+        }
+    }
+    
+    // 暴露类的实例
+    export default new HttpRequest(baseUrl)
+    ```
+  
+  - /api新建一个接口文件data.js
+  
+    ```js
+    import axios from './axios';
+    export const getMenu = param => {
+        return axios.request({
+            url: '/permission/getMenu',
+            method: 'POST',
+            data: param
+        })
+    }
+    ```
+  
+  - 在Home.vue中添加接口
+  
+    ```js
+    mounted() {
+        getMenu().then(res=> console.log(res))
+    }
+    ```
+  
+    刷新页面，可见post请求已发出
+  
+  - 使用响应拦截器
+  
+    ```
+    // 添加响应拦截器
+    ...
+        instance.interceptors.response.use(function (response) {
+            console.log(response, 'response');
+            // 对响应数据做点什么
+            return response;
+        }, function (error) {
+            console.log(error);
+            // 对响应错误做点什么
+            return Promise.reject(error);
+        });
+    ...
+    ```
+  
+    刷新页面，可见打印一个AxiosError {message: 'Request failed with status code 404'...}消息，说明拦截器部署成功！
+
+## 6-15
+
+### 使用mock模拟请求
+
+ mock是一个模拟数据生成器，旨在帮助前端独立于后端进行开发，帮助编写单元测试。其可模拟 Ajax 并返回模拟数据，使前端不用去调用后端的接口，方便测试。 
+
+- 安装引入
+
+  ```
+  yarn add mockjs
+  
+  // @/api下新建mock.js
+  import Mock from "mockjs";
+  
+  // @/api下新建后台数据api文件 mockServerData/home.js
+  import Mock from 'mockjs';
+  
+  // 将mock.js引入main.js
+  import '@/api/mock.js';
+  ```
+
+- 后台Mock生成并返回数据
+
+  ```
+  // home.js
+  let list = [];
+  export default {
+      getStaticalData: () => {
+          const data = Mock.mock(Mock.Random.float(100, 8000, 0, 0));
+          return {
+          	code: 20000;
+          	data
+          }
+      }
+  ```
+
+- 前台Mock拦截url并执行getStaticalData
+
+  ```
+  import homeApi from './mockServerData/home';
+  
+  // Mock.mock(url,function()) 当拦截到url时，function将被执行，并返回函数执行结果
+  // url可以是正则表达式
+  // Mock.mock(/getData/, homeApi.getStaticalData);
+  
+  Mock.mock('/api/home/getData', homeApi.getStaticalData);
+  ```
+
+- 在data.js中添加axios请求，访问指定url
+
+  ```
+  export const getData = () => {
+      return axios.request({
+          url: '/home/getData'
+      })
+  }
+  ```
+
+- 在Home.vue组件中添加getData接口，将从mock传来的数据传入tableData
+
+  ```
+  mounted() {
+      getData().then(res => {
+          const { code, data } = res.data;
+          if (code === 20000) {
+              this.tableData = data.tableData;
+          }
+          console.log(res);
+      })
+  }
+  ```
+
+  
+
+### 阶段小总结
+
+**表格中的数据从何而来？**
+
+项目启动，网页加载，main.js执行-->
+
+App.vue加载-->
+
+路由匹配到Main.vue组件-->
+
+Main.vue显示aside和header，此时点击home，url改变-->
+
+路由匹配到Home.vue组件-->
+
+Home.vue 执行它的 mounted() 接口，其中包含 `getData()`-->
+
+异步执行`getData`，线程转至axios发送访问`/home/getData`的请求-->
+
+main.js引入了mock.js，mock拦截到`Mock.mock(url, func)`匹配的url，执行func-->
+
+func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一组data到`getData`-->
+
+线程回到 `getData` ，校验状态码并向Home.vue的tableData传入数据-->
+
+表格组件遍历渲染数据...
+
+
+
+### 使用echarts
+
+一个基于 JavaScript 的开源可视化图表库 
+

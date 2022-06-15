@@ -15,6 +15,8 @@ import router from './router';
 import store from './store';
 // 引入axios
 import axios from 'axios';
+// 引入mockjs
+import '@/api/mock.js';
 
 Vue.config.productionTip = false;
 
