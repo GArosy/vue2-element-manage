@@ -101,6 +101,7 @@
             }
         }
     }
+    // 图表部分
     .graph-line {
         height: 16rem;
         margin-top: 1rem;
@@ -108,7 +109,7 @@
     .graph {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: 12rem;
+        grid-template-rows: 15rem;
         grid-gap: 1rem;
         margin-top: 1rem;
         .graph-col {

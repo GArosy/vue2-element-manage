@@ -49,38 +49,38 @@ export default {
                 userData: [
                     {
                         data: '周一',
-                        new: 5,
+                        new: 40,
                         active: 200
                     },
                     {
                         data: '周二',
-                        new: 10,
-                        active: 500
+                        new: 70,
+                        active: 300
                     },
                     {
                         data: '周三',
-                        new: 12,
+                        new: 60,
                         active: 550
                     },
                     {
                         data: '周四',
-                        new: 60,
-                        active: 800
+                        new: 120,
+                        active: 600
                     },
                     {
                         data: '周五',
-                        new: 65,
-                        active: 900
+                        new: 180,
+                        active: 750
                     },
                     {
                         data: '周六',
-                        new: 80,
-                        active: 1200
+                        new: 160,
+                        active: 700
                     },
                     {
                         data: '周日',
-                        new: 90,
-                        active: 1500
+                        new: 150,
+                        active: 800
                     },
                 ],
                 // 折线图

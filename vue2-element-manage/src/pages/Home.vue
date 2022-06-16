@@ -2,7 +2,7 @@
     <div class="home">
         <el-row class="home" :gutter="20">
             <!-- 第一列 -->
-            <!-- 总高16+1+24=41rem -->
+            <!-- 总高16+1+26=44rem -->
             <el-col style="margin-top: 20px;" :span="8">
                 <!-- card组件-用户信息 -->
                 <el-card shadow="hover" style="height: 16rem;">
@@ -19,7 +19,7 @@
                     </div>
                 </el-card>
                 <!-- card组件-表格 -->
-                <el-card shadow="hover" style="margin-top:1rem; height: 24rem;" :span="8">
+                <el-card shadow="hover" style="margin-top:1rem; height: 27rem;" :span="8">
                     <el-table :data="tableData">
                         <el-table-column v-for="(value, name) in tableLabel" :key="name" :prop="name" :label="value">
                         </el-table-column>
@@ -27,7 +27,7 @@
                 </el-card>
             </el-col>
             <!-- 第二列 -->
-            <!-- 总高5+1+5+1+16+1+12=41rem -->
+            <!-- 总高5+1+5+1+16+1+15=44rem -->
             <el-col style="margin-top: 20px;" :span="16">
                 <!-- card组件-订单 -->
                 <div class="count">
@@ -40,10 +40,21 @@
                     </el-card>
                 </div>
                 <!-- card组件-图表 -->
-                <el-card shadow="hover" class="graph-line"></el-card>
+                <!-- 折线图 -->
+                <el-card shadow="hover" class="graph-line">
+                    <!-- vue中，在标签添加 ref Attribute，就可以在js中通过 this.$refs.name 访问到对应的dom元素 -->
+                    <!-- echarts组件需要手动设置高度，否则无法显示 -->
+                    <div ref="line" style="height: 16rem;"></div>
+                </el-card>
                 <div class="graph">
-                    <el-card shadow="hover" class="graph-col" :span="8"></el-card>
-                    <el-card shadow="hover" class="graph-pie" :span="8"></el-card>
+                    <!-- 柱状图 -->
+                    <el-card shadow="hover" class="graph-col" :span="8">
+                        <div ref="column" style="height: 15rem;"></div>
+                    </el-card>
+                    <!-- 饼状图 -->
+                    <el-card shadow="hover" class="graph-pie" :span="8">
+                        <div ref="pie" style="height: 15rem;"></div>
+                    </el-card>
                 </div>
             </el-col>
         </el-row>
@@ -52,6 +63,8 @@
 
 <script>
 import { getData } from '@/api/data';
+import * as echarts from 'echarts';
+
 export default {
     name: 'home',
     data() {
@@ -105,12 +118,141 @@ export default {
         }
     },
     mounted() {
+        let lineEcharts = {};
+        let columnEcharts = {};
+        let pieEcharts = {};
         getData().then(res => {
             const { code, data } = res.data;
             if (code === 20000) {
+                // 处理接口传来的数据
+
+                // 折线图
                 this.tableData = data.tableData;
+                const order = data.orderData;
+                // 取出data的keys
+                const keyArray = Object.keys(order.data[0]);
+                // 构建图表所需的series
+                const series = [];
+                keyArray.forEach((key) => {
+                    series.push({
+                        name: key,
+                        data: order.data.map(item => item[key]),
+                        type: 'line'
+                    })
+                })
+                const lineOption = {
+                    xAxis: {
+                        data: order.date
+                    },
+                    yAxis: {},
+                    // 图例
+                    legend: {
+                        data: keyArray
+                    },
+                    series,
+                    // 配置提示框组件，实现悬停弹窗
+                    tooltip: {
+                        show: true,          // 是否显示提示框组件
+                        trigger: 'axis',    // 触发类型:item/axis/none
+                        axisPointer: {      // 配置坐标轴指示器
+                            type: 'line'
+                        }
+                    }
+                }
+                // 基于准备好的dom，初始化echarts实例(使用svg渲染)
+                lineEcharts = echarts.init(this.$refs.line, null, { renderer: 'svg' });
+                // 绘制图表
+                lineEcharts.setOption(lineOption);
+
+                // 柱状图
+                const columnOption = {
+                    xAxis: {
+                        type: 'category',
+                        data: data.userData.map(item => item.data),
+                        axisLine: {
+                            lineStyle: {
+                                color: '#17b3c3'
+                            }
+                        },
+                        axisLabel: {
+                            interval: 0,
+                            color: '#333'
+                        }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLine: {
+                            lineStyle: {
+                                color: '#17b3c3'
+                            }
+                        }
+                    },
+                    legend: {
+                        textStyle: {
+                            color: '#333'
+                        }
+                    },
+                    grid: {
+                        left: '20%'
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    color: ['#2ec7c9', '#b6a2de'],
+                    series: [
+                        {
+                            name: '新增用户',
+                            data: data.userData.map(item => item.new),
+                            type: 'bar'
+                        },
+                        {
+                            name: '活跃用户',
+                            data: data.userData.map(item => item.active),
+                            type: 'bar'
+                        }
+                    ]
+                }
+                columnEcharts = echarts.init(this.$refs.column, null, { renderer: 'svg' });
+                columnEcharts.setOption(columnOption);
+
+                // 饼状图
+                const pieOption = {
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    legend: {
+                        top: '0%'
+                    },
+                    series: [
+                        {
+                            name: '市场占比',
+                            data: data.videoData,
+                            type: 'pie',
+                            top: '-10px',
+                            radius: ['30%', '60%'],
+                            label: {
+                                show: false,
+                                position: 'center'
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    fontSize: '16px'
+                                }
+                            }
+                        }
+                    ]
+                }
+                pieEcharts = echarts.init(this.$refs.pie, null, { renderer: 'svg' });
+                pieEcharts.setOption(pieOption);
             }
             // console.log(res);
+        })
+        // 图表随页面尺寸变化
+        window.addEventListener('resize', () => {
+            lineEcharts.resize();
+            columnEcharts.resize();
+            pieEcharts.resize();
         })
     },
 }

@@ -649,12 +649,13 @@
 
   将配置文件添加到axios请求中，通过对当前项目的配置环境做判断，来改变一个接口请求的地址，并对所有的接口进行监听，在请求前后拦截。
   
-这里使用ES6中的Class特性来抽象出一个`HttpRequest`类，存放属性和方法。
-  
 
-  
+这里使用ES6中的Class特性来抽象出一个`HttpRequest`类，存放属性和方法。
+
+
+
   - 封装axios：新建@/api文件夹，新建axios.js。
-  
+
   ```js
     import axios from 'axios';
   import config from '@/config/index.js';
@@ -662,8 +663,8 @@
     const baseURL = process.env.NODE_ENV === 'development' ? config.baseURL.dev : config.baseURL.prod;
     
     
-    ```
-  
+  ```
+
   - 配置文件：新建@/config文件夹，新建index.js。存放项目运行时所需要的配置 
   
     ```
@@ -873,7 +874,19 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
 
 
 
+## 6-16
+
 ### 使用echarts
 
 一个基于 JavaScript 的开源可视化图表库 
 
+- 安装引入
+
+  ```
+  yarn add echarts
+  
+  // Home.vue
+  import * as echarts from 'echarts';
+  ```
+
+- 处理接口数据
