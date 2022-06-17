@@ -889,4 +889,102 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
   import * as echarts from 'echarts';
   ```
 
-- 处理接口数据
+- 处理接口数据，拼凑要echarts配置项，绘图
+
+  ```js
+  // 折线图
+  this.tableData = data.tableData;
+  const order = data.orderData;
+  // 取出data的keys
+  const keyArray = Object.keys(order.data[0]);
+  // 构建图表所需的series
+  const series = [];
+  keyArray.forEach((key) => {
+      series.push({
+          name: key,
+          data: order.data.map(item => item[key]),
+          type: 'line'
+      })
+  })
+  const lineOption = {
+      xAxis: {
+          data: order.date
+      },
+      yAxis: {},
+      // 图例
+      legend: {
+          data: keyArray
+      },
+      series,
+      // 配置提示框组件，实现悬停弹窗
+      tooltip: {
+          show: true,          // 是否显示提示框组件
+          trigger: 'axis',    // 触发类型:item/axis/none
+          axisPointer: {      // 配置坐标轴指示器
+              type: 'line'
+          }
+      }
+  }
+  // 基于准备好的dom，初始化echarts实例(使用svg渲染)
+  lineEcharts = echarts.init(this.$refs.line, null, { renderer: 'svg' });
+  // 绘制图表
+  lineEcharts.setOption(lineOption);
+  ```
+
+  ==注意==：其中的dom操作需要在网页dom渲染完成之后才有效，否则接收不到数据。通常情况下echarts从后端获取数据需要异步执行。此项目已经使用了axios异步处理后台数据，无需再做处理。
+
+- 柱状图、饼状图同理
+
+## 6-17
+
+- echarts组件化
+
+  页面内有多个echarts时，如果直接在组件内使用echarts会产生许多重复代码，不利于维护，应将echarts打包到一个独立组件内
+
+  - 新建@/components/ECharts.vue
+
+    ```js
+    <template>
+        <div ref="echarts"></div>
+    </template>
+    <script>
+    import * as ECharts from 'echarts';
+    export default {
+    	// 自定义attribute
+        props: {
+            // 判断图表类型的属性
+            // 图表数据（父传子）
+        },
+        data() {
+            return {
+                // 各个图表的option配置
+                // echarts实例
+            }
+        },
+        // 监听器，判断父组件是否有数据传入子组件
+        watch() {
+            
+        },
+        // 方法
+        methods: {
+            // 实例化ecahrts
+            // 将父组件的数据传入option
+        },
+        // 计算属性
+        computed: {
+            // 判断要使用的options类型
+        }
+    }
+    </script>
+    ```
+
+  - 在Home.vue中使用组件
+
+    ```js
+    <el-card shadow="hover" class="graph-line">
+        <echarts-template :charData=""></echarts-template>
+    </el-card>
+    ```
+
+    charData数据即是要传入子组件的图表数据。
+

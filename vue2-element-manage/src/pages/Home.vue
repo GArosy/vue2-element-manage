@@ -45,6 +45,7 @@
                     <!-- vue中，在标签添加 ref Attribute，就可以在js中通过 this.$refs.name 访问到对应的dom元素 -->
                     <!-- echarts组件需要手动设置高度，否则无法显示 -->
                     <div ref="line" style="height: 16rem;"></div>
+                    <echarts-template></echarts-template>
                 </el-card>
                 <div class="graph">
                     <!-- 柱状图 -->
@@ -64,6 +65,7 @@
 <script>
 import { getData } from '@/api/data';
 import * as echarts from 'echarts';
+import EChartsTemplate from '@/components/EChartsTemplate.vue';
 
 export default {
     name: 'home',
@@ -116,6 +118,9 @@ export default {
                 },
             ]
         }
+    },
+    components: {
+        EChartsTemplate
     },
     mounted() {
         let lineEcharts = {};
