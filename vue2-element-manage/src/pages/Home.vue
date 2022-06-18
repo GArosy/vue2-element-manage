@@ -44,17 +44,19 @@
                 <el-card shadow="hover" class="graph-line">
                     <!-- vue中，在标签添加 ref Attribute，就可以在js中通过 this.$refs.name 访问到对应的dom元素 -->
                     <!-- echarts组件需要手动设置高度，否则无法显示 -->
-                    <div ref="line" style="height: 16rem;"></div>
-                    <echarts-template></echarts-template>
+                    <!-- <div ref="line" style="height: 16rem;"></div> -->
+                    <echarts-template :chartData="echartsData.lineData" style="height: 16rem;"></echarts-template>
                 </el-card>
                 <div class="graph">
                     <!-- 柱状图 -->
                     <el-card shadow="hover" class="graph-col" :span="8">
-                        <div ref="column" style="height: 15rem;"></div>
+                        <!-- <div ref="column" style="height: 15rem;"></div> -->
+                        <echarts-template :chartData="echartsData.colData" style="height: 15rem;"></echarts-template>
                     </el-card>
                     <!-- 饼状图 -->
                     <el-card shadow="hover" class="graph-pie" :span="8">
-                        <div ref="pie" style="height: 15rem;"></div>
+                        <!-- <div ref="pie" style="height: 15rem;"></div> -->
+                        <echarts-template :chartData="echartsData.pieData" :isAxisChart="false" style="height: 15rem;"></echarts-template>
                     </el-card>
                 </div>
             </el-col>
@@ -64,8 +66,8 @@
 
 <script>
 import { getData } from '@/api/data';
-import * as echarts from 'echarts';
-import EChartsTemplate from '@/components/EChartsTemplate.vue';
+// import * as echarts from 'echarts';
+import EchartsTemplate from '@/components/EchartsTemplate.vue';
 
 export default {
     name: 'home',
@@ -116,16 +118,27 @@ export default {
                     icon: 'star-on',
                     color: '#5ab1ef'
                 },
-            ]
+            ],
+            // 图表数据
+            echartsData: {
+                lineData: {
+                    xData: [],
+                    series: []
+                },
+                colData: {
+                    xData: [],
+                    series: []
+                },
+                pieData: {
+                    series: []
+                }
+            }
         }
     },
     components: {
-        EChartsTemplate
+        EchartsTemplate
     },
     mounted() {
-        let lineEcharts = {};
-        let columnEcharts = {};
-        let pieEcharts = {};
         getData().then(res => {
             const { code, data } = res.data;
             if (code === 20000) {
@@ -138,6 +151,7 @@ export default {
                 const keyArray = Object.keys(order.data[0]);
                 // 构建图表所需的series
                 const series = [];
+                const orderXData = order.date;
                 keyArray.forEach((key) => {
                     series.push({
                         name: key,
@@ -145,6 +159,7 @@ export default {
                         type: 'line'
                     })
                 })
+                /*
                 const lineOption = {
                     xAxis: {
                         data: order.date
@@ -164,13 +179,16 @@ export default {
                         }
                     }
                 }
-                // 基于准备好的dom，初始化echarts实例(使用svg渲染)
-                lineEcharts = echarts.init(this.$refs.line, null, { renderer: 'svg' });
-                // 绘制图表
-                lineEcharts.setOption(lineOption);
+                */
+                this.echartsData.lineData.xData = orderXData;
+                this.echartsData.lineData.series = series;
+                // // 基于准备好的dom，初始化echarts实例(使用svg渲染)
+                // lineEcharts = echarts.init(this.$refs.line, null, { renderer: 'svg' });
+                // // 绘制图表
+                // lineEcharts.setOption(lineOption);
 
                 // 柱状图
-                const columnOption = {
+                /* const columnOption = {
                     xAxis: {
                         type: 'category',
                         data: data.userData.map(item => item.data),
@@ -216,12 +234,26 @@ export default {
                             type: 'bar'
                         }
                     ]
-                }
-                columnEcharts = echarts.init(this.$refs.column, null, { renderer: 'svg' });
-                columnEcharts.setOption(columnOption);
+                } */
+
+                this.echartsData.colData.xData = data.userData.map(item => item.data);
+                this.echartsData.colData.series = [
+                    {
+                        name: '新增用户',
+                        data: data.userData.map(item => item.new),
+                        type: 'bar'
+                    },
+                    {
+                        name: '活跃用户',
+                        data: data.userData.map(item => item.active),
+                        type: 'bar'
+                    }
+                ];
+                // columnEcharts = echarts.init(this.$refs.column, null, { renderer: 'svg' });
+                // columnEcharts.setOption(columnOption);
 
                 // 饼状图
-                const pieOption = {
+                /* const pieOption = {
                     tooltip: {
                         trigger: 'item'
                     },
@@ -247,18 +279,38 @@ export default {
                             }
                         }
                     ]
-                }
-                pieEcharts = echarts.init(this.$refs.pie, null, { renderer: 'svg' });
-                pieEcharts.setOption(pieOption);
+                } */
+                this.echartsData.pieData.series = [
+                    {
+                        name: '市场占比',
+                        data: data.videoData,
+                        type: 'pie',
+                        top: '-10px',
+                        radius: ['30%', '60%'],
+                        label: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '16px'
+                            }
+                        }
+                    }
+                ];
+
+                // pieEcharts = echarts.init(this.$refs.pie, null, { renderer: 'svg' });
+                // pieEcharts.setOption(pieOption);
             }
-            // console.log(res);
+            console.log(data);
         })
         // 图表随页面尺寸变化
-        window.addEventListener('resize', () => {
-            lineEcharts.resize();
-            columnEcharts.resize();
-            pieEcharts.resize();
-        })
+        // window.addEventListener('resize', () => {
+        //     lineEcharts.resize();
+        //     columnEcharts.resize();
+        //     pieEcharts.resize();
+        // })
     },
 }
 </script>

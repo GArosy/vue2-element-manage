@@ -1,6 +1,6 @@
 <template>
     <!-- vue中，在标签添加 ref Attribute，就可以在js中通过 this.$refs.name 访问到对应的dom元素 -->
-    <div ref="echarts"></div>
+    <div ref="echarts" style="height: 15rem;"></div>
 </template>
 
 <script>
@@ -17,7 +17,7 @@ export default {
             default() {
                 return {
                     xData: [],
-                    series
+                    series: []
                 }
             }
         }
@@ -28,10 +28,10 @@ export default {
             axisOption: {
                 xAxis: {
                     type: 'category',
-                    data: data.userData.map(item => item.data),
+                    data: [],
                     axisLine: {
                         lineStyle: {
-                            color: '#17b3c3'
+                            color: '#17b3a3'
                         }
                     },
                     axisLabel: {
@@ -39,14 +39,16 @@ export default {
                         color: '#333'
                     }
                 },
-                yAxis: {
-                    type: 'value',
-                    axisLine: {
-                        lineStyle: {
-                            color: '#17b3c3'
+                yAxis: [
+                    {
+                        type: 'value',
+                        axisLine: {
+                            lineStyle: {
+                                color: '#17b3c3'
+                            }
                         }
                     }
-                },
+                ],
                 legend: {
                     textStyle: {
                         color: '#333'
@@ -58,19 +60,7 @@ export default {
                 tooltip: {
                     trigger: 'axis'
                 },
-                color: ['#2ec7c9', '#b6a2de'],
-                series: [
-                    {
-                        name: '新增用户',
-                        data: data.userData.map(item => item.new),
-                        type: 'bar'
-                    },
-                    {
-                        name: '活跃用户',
-                        data: data.userData.map(item => item.active),
-                        type: 'bar'
-                    }
-                ]
+                series: []
             },
             // 饼状图配置
             pieOption: {
@@ -83,7 +73,7 @@ export default {
                 series: [
                     {
                         name: '市场占比',
-                        data: data.videoData,
+                        data: [],
                         type: 'pie',
                         top: '-10px',
                         radius: ['30%', '60%'],
@@ -105,9 +95,10 @@ export default {
     },
     watch: {
         // 监听charData数据
-        charData: {
+        chartData: {
             handler() {
-                this.initEcharts()
+                this.initEcharts();
+                // console.log(this.chartData);
             },
             // 深度监听
             deep: true
@@ -116,28 +107,36 @@ export default {
     methods: {
         // 初始化echarts
         initEcharts() {
-            this.initCharData()
+            this.initChartData()
             if (this.echartInstance) {
                 this.echartInstance.setOption(this.options)
             } else {
                 this.echartInstance = ECharts.init(this.$refs.echarts)
                 this.echartInstance.setOption(this.options)
             }
+            // console.log(this.axisOption);
+            window.addEventListener('resize', () => {
+                // console.log(this.echartInstance);
+                if (this.echartInstance) {
+                    this.echartInstance.resize();
+                    // console.log('window resized');
+                }
+            })
         },
-        // 传入echarts数据
-        initCharData() {
+        // 判断图表类型，为options传入数据
+        initChartData() {
             if (this.isAxisChart) {
-                this.axisOption.xAxis = this.charData.xDate;
-                this.axisOption.series = this.charData.series;
+                this.axisOption.xAxis.data = this.chartData.xData;
+                this.axisOption.series = this.chartData.series;
             } else {
-                this.pieOption.series = this.charData.series;
+                this.pieOption.series = this.chartData.series;
             }
         }
     },
     computed: {
         options() {
-            return this.isAxisChart ? this.axisOption : this.pieOption
+            return this.isAxisChart ? this.axisOption : this.pieOption;
         }
-    }
+    },
 }
 </script>
