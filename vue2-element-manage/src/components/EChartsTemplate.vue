@@ -115,6 +115,7 @@ export default {
                 this.echartInstance.setOption(this.options)
             }
             // console.log(this.axisOption);
+            // 图表随页面大小变化
             window.addEventListener('resize', () => {
                 // console.log(this.echartInstance);
                 if (this.echartInstance) {

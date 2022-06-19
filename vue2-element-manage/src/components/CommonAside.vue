@@ -14,7 +14,7 @@
                 <span slot="title">{{ item.label }}</span>
             </template>
             <el-menu-item-group>
-                <el-menu-item v-for="subItem in item.children" :key="subItem.path">
+                <el-menu-item @click="clickMenu(subItem)" v-for="subItem in item.children" :key="subItem.path">
                     <i :class="`el-icon-${subItem.icon}`"></i>
                     <span slot="title">{{ subItem.label }}</span>
                 </el-menu-item>
@@ -76,14 +76,14 @@ export default {
                             name: "page1",
                             label: "页面1",
                             icon: "setting",
-                            url: "Other/PageOne",
+                            url: "Other/Page1",
                         },
                         {
                             path: "/page2",
                             name: "page2",
                             label: "页面2",
                             icon: "setting",
-                            url: "Other/PageTwo",
+                            url: "Other/Page2",
                         },
                     ],
                 },

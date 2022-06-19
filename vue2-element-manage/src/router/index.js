@@ -6,6 +6,8 @@ import Main from '../pages/Main.vue';
 import Home from '../pages/Home.vue';
 import User from '../pages/User.vue';
 import Mall from '../pages/Mall.vue';
+import Other1 from '../pages/OtherPage1.vue';
+import Other2 from '../pages/OtherPage2.vue';
 
 Vue.use(VueRouter);
 
@@ -22,18 +24,33 @@ const routes = [
             {
                 path: '/home',
                 name: 'home',
+                label: '首页', 
                 component: Home
             },
             {
                 path: '/user',
                 name: 'user',
+                label: '用户管理',
                 component: User
             }, 
             {
                 path: '/mall',
                 name: 'mall',
+                label: '商品管理',
                 component: Mall
-            }
+            },
+            {
+                path: '/page1',
+                name: 'page1',
+                label: '其它1',
+                component: Other1
+            },
+            {
+                path: '/page2',
+                name: 'page2',
+                label: '其它2',
+                component: Other2
+            },
         ]
     },
 

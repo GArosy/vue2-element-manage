@@ -150,10 +150,10 @@ export default {
                 // 取出data的keys
                 const keyArray = Object.keys(order.data[0]);
                 // 构建图表所需的series
-                const series = [];
+                const orderSeries = [];
                 const orderXData = order.date;
                 keyArray.forEach((key) => {
-                    series.push({
+                    orderSeries.push({
                         name: key,
                         data: order.data.map(item => item[key]),
                         type: 'line'
@@ -181,7 +181,7 @@ export default {
                 }
                 */
                 this.echartsData.lineData.xData = orderXData;
-                this.echartsData.lineData.series = series;
+                this.echartsData.lineData.series = orderSeries;
                 // // 基于准备好的dom，初始化echarts实例(使用svg渲染)
                 // lineEcharts = echarts.init(this.$refs.line, null, { renderer: 'svg' });
                 // // 绘制图表

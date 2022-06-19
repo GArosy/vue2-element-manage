@@ -1,6 +1,14 @@
 export default {
     state: {
-        isCollapse: false
+        isCollapse: false,
+        tabsList: [
+            {
+                path: '/',
+                name: 'home',
+                label: '首页',
+                icon: 'home'
+            }
+        ]
     },
     // 定义方法
     mutations: {

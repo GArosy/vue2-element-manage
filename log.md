@@ -937,54 +937,160 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
 
 ## 6-17
 
-- echarts组件化
+### echarts组件化
 
-  页面内有多个echarts时，如果直接在组件内使用echarts会产生许多重复代码，不利于维护，应将echarts打包到一个独立组件内
+页面内有多个echarts时，如果直接在组件内使用echarts会产生许多重复代码，不利于维护，应将echarts打包到一个独立组件内
 
-  - 新建@/components/ECharts.vue
+- 新建@/components/ECharts.vue
 
-    ```js
-    <template>
-        <div ref="echarts"></div>
-    </template>
-    <script>
-    import * as ECharts from 'echarts';
-    export default {
-    	// 自定义attribute
-        props: {
-            // 判断图表类型的属性
-            // 图表数据（父传子）
-        },
-        data() {
-            return {
-                // 各个图表的option配置
-                // echarts实例
-            }
-        },
-        // 监听器，判断父组件是否有数据传入子组件
-        watch() {
-            
-        },
-        // 方法
-        methods: {
-            // 实例化ecahrts
-            // 将父组件的数据传入option
-        },
-        // 计算属性
-        computed: {
-            // 判断要使用的options类型
-        }
-    }
-    </script>
-    ```
+  ```js
+  <template>
+      <div ref="echarts"></div>
+  </template>
+  <script>
+  import * as ECharts from 'echarts';
+  export default {
+  	// 自定义attribute
+      props: {
+          // 判断图表类型的属性
+          // 图表数据（父传子）
+      },
+      data() {
+          return {
+              // 各个图表的option配置
+              // echarts实例
+          }
+      },
+      // 监听器，判断父组件是否有数据传入子组件
+      watch() {
+          
+      },
+      // 方法
+      methods: {
+          // 实例化ecahrts
+          // 判断图表类型，将父组件的数据传入option。饼图对应series，折线图柱状图对应xData和series
+      },
+      // 计算属性
+      computed: {
+          // 判断要使用的options类型
+      }
+  }
+  </script>
+  ```
 
-  - 在Home.vue中使用组件
+- 在Home.vue中使用组件
 
-    ```js
-    <el-card shadow="hover" class="graph-line">
-        <echarts-template :charData=""></echarts-template>
-    </el-card>
-    ```
+  ```js
+  <el-card shadow="hover" class="graph-line">
+      <echarts-template :chartData=""></echarts-template>
+  </el-card>
+  ```
 
-    charData数据即是要传入子组件的图表数据。
+  这里通过子组件的props实现组件间的数据传递，chartData数据即是要传入子组件的图表数据。
 
+  ```js
+  <script>
+  import EchartsTemplate from '@/components/EchartsTemplate.vue';
+// 改写数据处理方法
+  export default {
+      name: 'home',
+      data() {
+          return {
+              ...
+              // 图表数据
+              echartsData: {
+                  lineData: {
+                      xData: [],
+                      series: []
+                  },
+                  colData: {
+                      xData: [],
+                      series: []
+                  },
+                  pieData: {
+                      series: []
+                  }
+              }
+          }       
+      },
+      components: {
+          EchartsTemplate
+      },
+      mounted() {
+          getData().then(res => {
+              const { code, data } = res.data;
+              if (code === 20000) {
+                  const order = data.orderData;
+                  const keyArray = Object.keys(order.data[0]);
+                  const orderSeries = [];
+                  const orderXData = order.date;
+                  keyArray.forEach((key) => {
+                      orderSeries.push({
+                          name: key,
+                          data: order.data.map(item => item[key]),
+                          type: 'line'
+                      })
+                  })
+                  // 为折线图传入数据
+                  this.echartsData.lineData.xData = orderXData;
+                  this.echartsData.lineData.series = orderSeries;
+                  // 为柱状图传入数据
+                  this.echartsData.colData.xData = data.userData.map(
+                      item => item.data
+                  );
+                  this.echartsData.colData.series = [
+                      {
+                          name: '新增用户',
+                          data: data.userData.map(item => item.new),
+                          type: 'bar'
+                      },
+                      {
+                          name: '活跃用户',
+                          data: data.userData.map(item => item.active),
+                          type: 'bar'
+                      }
+                  ];
+                  // 为饼图传入数据
+                  this.echartsData.pieData.series = [
+                      {
+                          name: '市场占比',
+                          data: data.videoData,
+                          type: 'pie',
+                          top: '-10px',
+                          radius: ['30%', '60%'],
+                          label: {
+                              show: false,
+                              position: 'center'
+                          },
+                          emphasis: {
+                              label: {
+                                  show: true,
+                                  fontSize: '16px'
+                              }
+                          }
+                      }
+                  ];
+              }
+  }
+  </script>
+  ```
+  
+  最后要注意将图表随页面大小变化的事件处理函数添加至EchartsTemplate组件中。
+
+
+
+## 6-19
+
+### 面包屑
+
+点击其他页面时，header 的 `首页` 后跟随添加一个页面链接。可实现历史记录
+
+- 创建所需页面，绑定点击跳转事件，修改路由
+
+- 在vuex中声明初始数据：
+
+  ```
+  
+  ```
+
+  
