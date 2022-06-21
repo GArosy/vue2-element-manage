@@ -1087,9 +1087,46 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
 
 - 创建所需页面，绑定点击跳转事件，修改路由
 
-- 在vuex中声明初始数据：
+- 在vuex中声明数据源和方法：
 
+  ```js
+  // tab.js
+  state: {
+    tabsList: [
+          {
+              path: '/',
+              name: 'home',
+              label: '首页',
+              icon: 'home'
+          }
+      ],
+      currentMenu: null
+  },
+  mutation: {
+      selectMenu (state, val) {
+          if (val.name !== 'home') {
+              // 
+              store.currentMenu = val;
+              // 查找tabsList中是否已存在传入的name
+              const result = store.tabsList.findIndex(
+                  item => item.name === val.name
+              );
+              if (result !== -1) {
+                  // 如果不存在val.name，则添加
+                  state.tabsList.push(val);
+              }
+          } else {
+              state.currentMenu = null;
+          }
+      }
+  }
   ```
+  
+- 绑定侧边栏点击事件
+
+  
+
+  ```js
   
   ```
 

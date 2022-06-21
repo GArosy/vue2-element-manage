@@ -303,7 +303,7 @@ export default {
                 // pieEcharts = echarts.init(this.$refs.pie, null, { renderer: 'svg' });
                 // pieEcharts.setOption(pieOption);
             }
-            console.log(data);
+            // console.log(data);
         })
         // 图表随页面尺寸变化
         // window.addEventListener('resize', () => {

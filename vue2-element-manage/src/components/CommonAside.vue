@@ -101,7 +101,8 @@ export default {
             // console.log(this.$router);
             this.$router.push({
                 name: item.name
-            }).catch(e => { })
+            }).catch(e => { });      // 使用 catch 方法捕获 router.push 异常，解决重复点击报错问题
+            this.$store.state
         }
     },
     computed: {
