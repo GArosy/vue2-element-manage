@@ -3,12 +3,3 @@ module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false
 })
-// module.exports = {
-//   css: {
-//     loaderOptions: {
-//       sass: {
-//         prependData: `@import "./src/style/index.scss"`;
-//       }
-//     }
-//   }
-// }

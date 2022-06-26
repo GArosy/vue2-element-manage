@@ -10,6 +10,14 @@
 
   - 安装yarn
 
+    ```
+    npm install yarn -g
+    // 更换源
+    yarn config set registry https://registry.npm.taobao.org/ 
+    ```
+
+    
+
   - 卸载旧版vue-cli，安装 @vue/cli：
 
     ```
@@ -27,24 +35,32 @@
 
     ```
     cd vue2-element-manage
-    yarn serve
+    yarn run serve
     ```
 
     可在本地 http://localhost:8080/ 查看项目。
-    
-    
+
+- ==注意== ：GitHub上传的项目会自动忽略node_module文件夹（在.gitignore中配置），切换运行环境时需要先根据package.json安装依赖
+
+  ```
+  npm install
+  // 或
+  yarn
+  ```
+
+  
 
 - 引入 element-ui 
-  
+
   - npm/yarn安装element-ui依赖
-  
+
     ```
     npm i element-ui -S
     yarn add element-ui
     ```
-  
+
   - 完整引入：
-  
+
     ```js
     // 写入main.js
     import ElementUI from 'element-ui';
@@ -52,16 +68,16 @@
     
     Vue.use(ElementUI);
     ```
-  
+
   - 按需引入：
-  
+
     借助 babel-plugin-component，我们可以只引入需要的组件，以达到减小项目体积的目的
-  
+
     ```js
     // 安装babel-plugin-component
     yarn add babel-plugin-component -D
     ```
-  
+
     ```js
     // 配置babel.config.js
     {
@@ -77,7 +93,7 @@
       ]
     }
     ```
-  
+
     ```js
     // 改写main.js
     import { Button } from 'element-ui';
@@ -85,15 +101,15 @@
     
     Vue.use(Button);
     ```
-  
+
   - 打包之后对比大小：
-  
+
     ```
     // 终端内
     // ctrl+C 终止项目
     yarn run build
     ```
-  
+
     全局安装8M，局部安装1.6M
 
 ## 6-9
@@ -559,7 +575,7 @@
     - 使用elementUI table组件实现图表
   
       ```html
-    <el-table :data="tableData">
+      <el-table :data="tableData">
           <el-table-column 
         v-for="(value, name) in tableLabel" 
           :key="name" 
@@ -991,7 +1007,7 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
   ```js
   <script>
   import EchartsTemplate from '@/components/EchartsTemplate.vue';
-// 改写数据处理方法
+  // 改写数据处理方法
   export default {
       name: 'home',
       data() {
@@ -1130,4 +1146,62 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
   
   ```
 
-  
+
+## 6-26
+
+更换设备，重新搭建环境
+
+- 安装node，下载依赖，遇到了一些包安装不成功的问题
+
+  ```
+  // 删除原有的所有依赖包
+  cnpm install -g rimraf
+  rimraf node_modules
+  // 重新下载
+  cnpm install
+  yarn install
+  ```
+
+  结果报错 gyp ERR! build error，windows平台缺少编译环境
+
+  ```
+  // 安装node-gyp
+  cnpm install -g node-gyp
+  // 安装跨平台的编译器
+  cnpm install --global --production windows-build-tools
+  ```
+
+  报错的原因是node.js的版本和node-sass版本不符，需要把node-sass版本号改为node对应的版本号
+
+  | NodeJS  | Supported node-sass version | Node Module |
+  | ------- | --------------------------- | ----------- |
+  | Node 17 | 7.0+                        | 102         |
+  | Node 16 | 6.0+                        | 93          |
+  | Node 15 | 5.0+, <7.0                  | 88          |
+  | Node 14 | 4.14+                       | 83          |
+  | Node 13 | 4.13+, <5.0                 | 79          |
+  | Node 12 | 4.12+                       | 72          |
+  | Node 11 | 4.10+, <5.0                 | 67          |
+  | Node 10 | 4.9+, <6.0                  | 64          |
+  | Node 8  | 4.5.3+, <5.0                | 57          |
+  | Node <8 | <5.0                        | <57         |
+
+  ```
+  // 请勿手动更改package.json和yarn.lock
+  npm update node-sass@^6.0.1
+  yarn upgrade node-sass@^6.0.1
+  ```
+
+- 更改脚本策略
+
+  ```
+  // 用管理员权限运行Windows Power Shell
+  set-ExecutionPolicy RemoteSigned
+  // 输入Y
+  ```
+
+- 要注意组件文件名称（大驼峰）与使用组件时的标签名对应，如`EchartsTemplate.vue` 对应 `<echarts-template>`
+
+继续面包屑的实现
+
+- 

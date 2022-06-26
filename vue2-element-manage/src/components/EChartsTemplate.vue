@@ -1,10 +1,11 @@
 <template>
     <!-- vue中，在标签添加 ref Attribute，就可以在js中通过 this.$refs.name 访问到对应的dom元素 -->
-    <div ref="echarts" style="height: 15rem;"></div>
+    <div ref="echart" style="height: 15rem;"></div>
 </template>
 
 <script>
-import * as ECharts from 'echarts';
+
+import * as echarts from 'echarts';
 export default {
     props: {
         // 判断图表类型是否为坐标轴类型（折线图/柱状图）
@@ -111,7 +112,7 @@ export default {
             if (this.echartInstance) {
                 this.echartInstance.setOption(this.options)
             } else {
-                this.echartInstance = ECharts.init(this.$refs.echarts)
+                this.echartInstance = echarts.init(this.$refs.echart)
                 this.echartInstance.setOption(this.options)
             }
             // console.log(this.axisOption);
