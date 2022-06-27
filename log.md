@@ -1138,13 +1138,8 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
   }
   ```
   
-- 绑定侧边栏点击事件
-
   
-
-  ```js
   
-  ```
 
 
 ## 6-26
@@ -1204,4 +1199,18 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
 
 继续面包屑的实现
 
-- 
+- 绑定侧边栏点击事件
+
+  在点击事件中调用 Store 的实例方法 `commit` 提交 `mutation` 和它的载荷 `payload`
+
+  ```
+  clickMenu(item) {
+  	...
+      this.$store.commit('selectMenu', item)
+  }
+  
+  ```
+
+## 6-27
+
+- 引入 el-breadcrumb 组件
