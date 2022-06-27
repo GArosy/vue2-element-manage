@@ -23,12 +23,12 @@ export default {
     selectMenu(state, val) {
       if (val.name !== "home") {
         //
-        store.currentMenu = val;
+        state.currentMenu = val;
         // 查找tabsList中是否已存在传入的name
-        const result = store.tabsList.findIndex(
+        const result = state.tabsList.findIndex(
           item => item.name === val.name
         );
-        if (result !== -1) {
+        if (result === -1) {
           // 如果不存在val.name，则添加
           state.tabsList.push(val);
         }

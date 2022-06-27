@@ -10,10 +10,12 @@
       <!-- <h3 style="color: #fff;">首页</h3> -->
       <!-- 使用面包屑组件 -->
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item><a href="/">活动管理</a></el-breadcrumb-item>
-        <el-breadcrumb-item>活动列表</el-breadcrumb-item>
-        <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+        <el-breadcrumb-item
+          v-for="item in tags"
+          :key="item.path"
+          :to="{ path: item.path }"
+          >{{ item.label }}</el-breadcrumb-item
+        >
       </el-breadcrumb>
     </div>
     <!-- 下拉菜单 -->
@@ -62,6 +64,7 @@ header {
 </style>
 
 <script>
+import { mapState } from "vuex";
 export default {
   name: "CommonHeader",
   data() {
@@ -73,6 +76,13 @@ export default {
     handleMenu() {
       this.$store.commit("collapseMenu");
     },
+  },
+  computed: {
+    // 使用对象展开运算符将此对象混入到外部对象中
+    ...mapState({
+      // 获取tabsList数组
+      tags: (state) => state.Tab.tabsList,
+    }),
   },
 };
 </script>

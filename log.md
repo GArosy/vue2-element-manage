@@ -1121,13 +1121,12 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
   mutation: {
       selectMenu (state, val) {
           if (val.name !== 'home') {
-              // 
-              store.currentMenu = val;
+              state.currentMenu = val;
               // 查找tabsList中是否已存在传入的name
-              const result = store.tabsList.findIndex(
+              const result = state.tabsList.findIndex(
                   item => item.name === val.name
               );
-              if (result !== -1) {
+              if (result === -1) {
                   // 如果不存在val.name，则添加
                   state.tabsList.push(val);
               }
@@ -1214,3 +1213,34 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
 ## 6-27
 
 - 引入 el-breadcrumb 组件
+
+- 当一个组件需要获取多个状态的时候，将这些状态都声明为计算属性会有些重复和冗余。所以为获取state `tabsList`，需要在计算属性中引入vuex组件绑定的辅助函数 `mapState()` 帮助我们生成计算属性
+
+  ```js
+  // 在单独构建的版本中辅助函数为 Vuex.mapState
+  import { mapState } from 'vuex'
+  
+  // ...
+  computed: {
+      // 使用对象展开运算符将此对象混入到外部对象中
+      ...mapState({
+        // 获取tabsList数组,注意正确使用store中模块的名称
+        tags: state => state.Tab.tabsList
+      }),
+    },
+  ```
+
+- 在模板中遍历渲染 tabsList 并设置路由，实现点击侧边栏时tabsList改变，实现响应式地渲染面包屑标签
+
+  ```html
+    <el-breadcrumb separator="/">
+      <el-breadcrumb-item
+        v-for="item in tags"
+        :key="item.path"
+        :to="{ path: item.path }"
+        >{{ item.label }}</el-breadcrumb-item
+      >
+    </el-breadcrumb>
+  ```
+
+  至此面包屑功能实现，但页面逻辑有一定问题，将在后续解决。
