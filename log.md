@@ -1244,3 +1244,84 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
   ```
 
   至此面包屑功能实现，但页面逻辑有一定问题，将在后续解决。
+
+## 6-28
+
+### 用户管理页面
+
+- 引入elementui的`Form`组件
+
+  `Form`组件由表单项 `form-item` 组成，封装表单也应由传入配置好的 `form-item` 开始。
+  
+- 编写`Form`组件
+
+  新建组件 `CommonForm.vue`
+
+  ```vue
+  <template>
+    <el-form ref="form" label-width="100px" :model="form" :inline="inline">
+      <el-form-item
+        v-for="item in formLabel"
+        :key="item.label"
+        :label="item.label"
+      >
+        <el-input
+          v-if="item.type === 'input'"
+          :placeholder="`请输入${item.label}`"
+          v-model="form[item.model]"
+        >
+        </el-input>
+        <el-switch v-if="item.type === 'switch'" v-model="form[item.model]">
+        </el-switch>
+        <el-date-picker
+          v-if="item.type === 'date'"
+          type="date"
+          value-format="yyyy-MM-dd"
+          placeholder="选择日期"
+          v-model="form[item.model]"
+        ></el-date-picker>
+        <el-select
+          v-if="item.type === 'select'"
+          placeholder="请选择"
+          v-model="form[item.model]"
+        >
+          <el-option
+            v-for="optItem in item.opts"
+            :key="optItem.value"
+            :label="optItem.label"
+            :value="optItem.value"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <!-- 如果以上组件都不满足，使用自定义插槽 -->
+      <el-form-item>
+          <slot></slot>
+      </el-form-item>
+    </el-form>
+  </template>
+  
+  <script>
+  export default {
+    name: "CommonForm",
+    props: {
+      formLabel: Array,
+      form: Object,
+      inline: Boolean,
+    },
+    data() {},
+  };
+  </script>
+  ```
+
+  
+
+## 6-29
+
+- 使用`Form`组件
+
+  ```
+  // User.vue
+  
+  ```
+
+  `:visible.sync`：`visible` 是el-dialog标签控制显示/隐藏的property，.sync是vue的修饰符，用于对 prop `visible` 进行“双向绑定”（`.sync` 修饰符的 `v-bind` 不能和**表达式**一起使用）
