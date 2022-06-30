@@ -1317,11 +1317,107 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
 
 ## 6-29
 
-- 使用`Form`组件
+- 在用户管理页面使用`Form`组件
 
+  ```vue
+  <template>
+    <div class="manage">
+      <!-- 对话框组件 -->
+      <el-dialog
+        :title="operateType === 'add' ? '新增用户' : '更新用户'"
+        :visible.sync="isShow"
+      >
+        <common-form
+          :formLabel="operateFormLabel"
+          :form="operateForm"
+          :inline="true"
+          ref="form"
+        ></common-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="isShow">取消</el-button>
+          <el-button @click="confirm" type="primary">确定</el-button>
+        </div>
+      </el-dialog>
+        
+      <!-- el-table组件 -->
+      <div class="manage-header">
+        <el-button type="primary" @click="addUser">+ 新增</el-button>
+        <common-form
+          :formLabel="formLabel"
+          :form="searchForm"
+          :inline="true"
+          ref="searchForm"
+        >
+          <el-button type="primary" @click="getList">搜索</el-button>
+        </common-form>
+      </div>
+    </div>
+  </template>
   ```
-  // User.vue
   
+  > `:visible.sync`：`visible` 是el-dialog标签控制显示/隐藏的property，.sync是vue的修饰符，用于对 prop `visible` 进行“双向绑定”（`.sync` 修饰符的 `v-bind` 不能和**表达式**一起使用）
+  
+  对话框部分
+  
+  1. 添加el-dialog组件用于存放common-form。其中el-dialog的title显示内容由operateType决定，并绑定isShow方法用于控制对话框弹出。
+  2. 父传子：为common-form的props传入数据。
+  3. 添加插槽，存放确定和取消按钮。
+  
+  图表部分
+  
+  1. 添加新增按钮
+  2. 复用common-form组件，并在插槽中添加搜索按钮
+
+## 6-30
+
+- 为form组件编写接口
+
+  1. 新建mockServerData/user.js，编写mock生成后台数据的方法
+
+  2. 在mock.js中引入user.js，拦截url并指定运行user.js中的对应方法
+
+  3. 为新增按钮绑定addUser方法，显示dialog
+
+     ```js
+     addUser() {
+       this.isShow = true;
+       this.operateType = "add";
+       this.operateForm = {
+         name: "",
+         addr: "",
+         age: "",
+         birth: "",
+         sex: "",
+       };
+     },
+     ```
+
+  4. 为确定按钮绑定confirm方法，向后台接口发送请求获得数据
+
+     ```js
+     confirm() {
+       if (this.operateType === "edit") {
+         this.$http.post("/user/edit", this.operateForm).then((res) => {
+           console.log(res);
+           this.isShow = false;
+         });
+       } else {
+         this.$http.post("/user/add", this.operateForm).then((res) => {
+           console.log(res);
+           this.isShow = false;
+         });
+       }
+     },
+     ```
+
+  ==注意==：element-ui 2.15.9 版本在vue中会遇到针对 el-date-picker 的警告问题：
+
+  > Avoid mutating a prop directly since the value will be overwritten whenever the parent component re-renders. Instead, use a data or computed property based on the prop's value. Prop being mutated: "placement"
+
+  问题出在了element-ui的 PR [#21806](https://github.com/ElemeFE/element/pull/21806) 增加了 props placement 用来适应位置，但是之前的代码 created 时有给 placement 赋值,导致报错。可修改element-ui版本到 2.15.8解决：
+
+  ```
+  yarn upgrade element-ui@2.15.8
   ```
 
-  `:visible.sync`：`visible` 是el-dialog标签控制显示/隐藏的property，.sync是vue的修饰符，用于对 prop `visible` 进行“双向绑定”（`.sync` 修饰符的 `v-bind` 不能和**表达式**一起使用）
+  至此，点击新增按钮后填写表单并提交可在控制台看到打印的数据，表明接口已在正常运作。

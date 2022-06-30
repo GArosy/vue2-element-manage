@@ -16,6 +16,18 @@
         <el-button @click="confirm" type="primary">确定</el-button>
       </div>
     </el-dialog>
+    <!-- el-table组件 -->
+    <div class="manage-header">
+      <el-button type="primary" @click="addUser">+ 新增</el-button>
+      <common-form
+        :formLabel="formLabel"
+        :form="searchForm"
+        :inline="true"
+        ref="searchForm"
+      >
+        <el-button type="primary" @click="getList">搜索</el-button>
+      </common-form>
+    </div>
   </div>
 </template>
 
@@ -77,10 +89,46 @@ export default {
         birth: "",
         sex: "",
       },
+      formLabel: [
+        {
+          model: "keyword",
+          label: "",
+          type: "input",
+        },
+      ],
+      searchForm: {
+        keyword: "",
+      },
     };
   },
   methods: {
-    confirm() {},
+    // 提交用户表单
+    confirm() {
+      if (this.operateType === "edit") {
+        this.$http.post("/user/edit", this.operateForm).then((res) => {
+          console.log(res);
+          this.isShow = false;
+        });
+      } else {
+        this.$http.post("/user/add", this.operateForm).then((res) => {
+          console.log(res);
+          this.isShow = false;
+        });
+      }
+    },
+    // 点击新增用户表单
+    addUser() {
+      this.isShow = true;
+      this.operateType = "add";
+      this.operateForm = {
+        name: "",
+        addr: "",
+        age: "",
+        birth: "",
+        sex: "",
+      };
+    },
+    getList() {},
   },
 };
 </script>
