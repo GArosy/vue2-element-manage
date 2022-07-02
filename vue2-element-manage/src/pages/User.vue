@@ -11,12 +11,12 @@
         :inline="true"
         ref="form"
       ></common-form>
-      <div slot="footer" class="dialog-footer">
+      <div class="dialog-footer">
         <el-button @click="isShow">取消</el-button>
         <el-button @click="confirm" type="primary">确定</el-button>
       </div>
     </el-dialog>
-    <!-- el-table组件 -->
+    <!-- 搜索表单组件 -->
     <div class="manage-header">
       <el-button type="primary" @click="addUser">+ 新增</el-button>
       <common-form
