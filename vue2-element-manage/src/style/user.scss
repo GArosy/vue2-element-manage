@@ -8,4 +8,15 @@
       margin: 0 0 0 10px;
     }
   }
+  .common-table {
+    height: calc(100% - 62px);
+    background-color: #fff;
+    position: relative;
+    margin-top: 1rem;
+    .pager {
+      position: absolute;
+      bottom: 0;
+      right: 20px;
+    }
+  }
 }
