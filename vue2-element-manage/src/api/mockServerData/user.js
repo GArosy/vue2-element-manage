@@ -1,4 +1,3 @@
-import { number } from "echarts";
 import Mock from "mockjs";
 
 const param2Obj = function (url) {
@@ -6,12 +5,14 @@ const param2Obj = function (url) {
   if (!search) {
     return {};
   }
-  // json转js，解码url
+  // json转js，解码url(使用字符串拼接，这里使用模板字符串会报错！)
   return JSON.parse(
-    `{"${decodeURIComponent(search)
-      .replace(/"/g, '\\"')
-      .raplace(/&/g, '","')
-      .raplace(/=/g, '":"')}}`
+    '{"' +
+      decodeURIComponent(search)
+        .replace(/"/g, '\\"')
+        .replace(/&/g, '","')
+        .replace(/=/g, '":"') +
+      '"}'
   );
 };
 
@@ -29,20 +30,22 @@ for (let i = 0; i < count; i++) {
       // 随机生成一个（中国）县，true表示生成所属的省、市
       addr: Mock.Random.county(true),
       // 生成一个大于等于 18、小于等于 60 的整数，属性值 number 只是用来确定类型
-      "age|18-60": number,
+      "age|18-60": 1,
       // 生成日期字符串，默认值为 yyyy-MM-dd
       birth: Mock.Random.date(),
-      "sex|0-1": number,
+      "sex|0-1": 1,
     })
   );
 }
 
 export default {
-  // 获取列表
+  // 获取用户列表数据
   getUserList: (config) => {
     // 解构赋值经 param2Obj 解析后的 name page limit
+    // console.log(config);
     const { name, page = 1, limit = 20 } = param2Obj(config.url);
-    console.log(`name:${name}`, `page:${page}`, `limit:${limit}`);
+    // console.log(`name:${name}`, `page:${page}`, `limit:${limit}`);
+    // 过滤空数据
     const mockList = List.filter((user) => {
       if (
         name &&
@@ -83,6 +86,7 @@ export default {
   },
   // 删除用户
   deleteUser: (config) => {
+    console.log(config);
     const { id } = param2Obj(config.url);
     if (!id) {
       return {

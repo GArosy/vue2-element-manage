@@ -1,16 +1,17 @@
 <template>
   <div class="common-table">
     <el-table :data="tableData" height="90%" stripe>
+      <!-- 表头 -->
       <el-table-column
         v-for="item in tableLabel"
         :key="item.prop"
-        :lable="item.label"
+        :label="item.label"
         :width="item.width ? item.width : 125"
         show-overflow-tooltip
       >
         <!-- 作用域插槽 -->
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row[item.prop] }}</span>
+        <template v-slot:default="slotProps">
+          <span style="margin-left: 10px">{{ slotProps.row[item.prop] }}</span>
         </template>
       </el-table-column>
       <!-- 操作列 -->
@@ -50,9 +51,16 @@ export default {
     return {};
   },
   methods: {
-    handleEdit() {},
-    handleDelete() {},
-    changePage() {},
+    handleEdit(row) {
+        this.$emit('edit', row)
+    },
+    handleDelete(row) {
+      console.log(row);
+        this.$emit('delete', row)
+    },
+    changePage(page) {
+        this.$emit('changePage', page)
+    },
   },
 };
 </script>

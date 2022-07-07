@@ -25,18 +25,31 @@
         :inline="true"
         ref="searchForm"
       >
-        <el-button type="primary" @click="getList">搜索</el-button>
+        <el-button type="primary" @click="getList(searchForm.keyword)">搜索</el-button>
       </common-form>
     </div>
+    <!-- 表格 -->
+    <common-table
+      :tableData="tableData"
+      :tableLabel="tableLabel"
+      :config="config"
+      @changePage="getList()"
+      @edit="editUser"
+      @delete="deleteUser"
+    >
+    </common-table>
   </div>
 </template>
 
 <script>
 import CommonForm from "@/components/CommonForm.vue";
+import CommonTable from "@/components/CommonTable.vue";
+import { getUser } from "@/api/data";
 export default {
   name: "User",
   components: {
     CommonForm,
+    CommonTable,
   },
   data() {
     return {
@@ -44,7 +57,9 @@ export default {
       operateType: "add",
       // 对话框显示与否
       isShow: false,
+
       // Form的配置数据
+      //   表头
       operateFormLabel: [
         {
           model: "name",
@@ -82,6 +97,7 @@ export default {
           type: "input",
         },
       ],
+      //   填写内容
       operateForm: {
         name: "",
         addr: "",
@@ -89,6 +105,7 @@ export default {
         birth: "",
         sex: "",
       },
+      // 搜索组件
       formLabel: [
         {
           model: "keyword",
@@ -99,6 +116,36 @@ export default {
       searchForm: {
         keyword: "",
       },
+
+      // Table数据
+      tableData: [],
+      //   表头
+      tableLabel: [
+        {
+          prop: "name",
+          label: "姓名",
+        },
+        {
+          prop: "age",
+          label: "年龄",
+        },
+        {
+          prop: "birth",
+          label: "出生日期",
+          width: 200,
+        },
+        {
+          prop: "addr",
+          label: "地址",
+          width: 320,
+        },
+      ],
+      //   分页
+      config: {
+        page: 1,
+        total: 30,
+        loading: false
+      },
     };
   },
   methods: {
@@ -108,6 +155,7 @@ export default {
         this.$http.post("/user/edit", this.operateForm).then((res) => {
           console.log(res);
           this.isShow = false;
+          this.getList();
         });
       } else {
         this.$http.post("/user/add", this.operateForm).then((res) => {
@@ -128,7 +176,61 @@ export default {
         sex: "",
       };
     },
-    getList() {},
+    // 获取用户列表
+    getList(name = "") {
+      this.config.loading = true;
+      name ? (this.config.page = 1) : "";
+      getUser({
+        page: this.config.page,
+        name,
+      }).then((res) => {
+        // console.log(res);
+        this.tableData = res.data.list.map((item) => {
+          // 将性别从数字映射为汉字
+          item.sexLabel = item.sex === 0 ? "女" : "男";
+          return item;
+        });
+        this.config.total = res.data.count;
+        this.config.loading = false;
+      });
+    },
+    // 编辑用户项
+    editUser(row) {
+      this.operateType = "edit";
+      this.isShow = true;
+      this.operateForm = row;
+    },
+    // 删除用户项
+    deleteUser(row) {
+      console.log(row);
+      // element-ui中封装的二次确认弹窗
+      this.$confirm("此操作不可撤回，确定要删除吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(
+        () => {
+          const id = row.id;
+          console.log(id);
+          this.$http
+            .get("user/del", {
+              params: { id },
+            })
+            .then(() => {
+              this.$message({
+                type: "success",
+                message: "删除成功",
+              });
+              this.getList();
+            });
+        },
+        (res) => console.log(res)
+      );
+    },
+  },
+  created() {
+    // 页面加载时即调用
+    this.getList();
   },
 };
 </script>

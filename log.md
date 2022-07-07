@@ -1374,7 +1374,7 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
 
   1. 新建mockServerData/user.js，编写mock生成后台数据的方法
 
-  2. 在mock.js中引入user.js，拦截url并指定运行user.js中的对应方法
+  2. 在mock.js中引入user.js，拦截url并指定运行user.js中的对应方法（P39）
 
   3. 为新增按钮绑定addUser方法，显示dialog
 
@@ -1421,3 +1421,284 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
   ```
 
   至此，点击新增按钮后填写表单并提交可在控制台看到打印的数据，表明接口已在正常运作。
+
+## 7-1
+
+- table组件编写
+
+  - 新建CommonTable.vue
+
+    ```vue
+    <template>
+      <div class="common-table">
+        <el-table :data="tableData" height="90%" stripe>
+          <el-table-column
+            v-for="item in tableLabel"
+            :key="item.prop"
+            :lable="item.label"
+            :width="item.width ? item.width : 125"
+            show-overflow-tooltip
+          >
+            <!-- 作用域插槽 -->
+            <template slot-scope="scope">
+              <span style="margin-left: 10px">{{ scope.row[item.prop] }}</span>
+            </template>
+          </el-table-column>
+          <!-- 操作列 -->
+          <el-table-column label="操作" min-width="180">
+            <el-button size="mini" @click="handleEdit">编辑</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete"
+              >删除</el-button
+            >
+          </el-table-column>
+          <!-- 分页组件 -->
+          <!-- 
+            通过 layout attribute 配置组件内容 
+            通过 @current-change 事件和 :current-page.sync 属性来处理当前页变动
+            :page-size 每页显示条目个数
+          -->
+          <el-pagination
+            class="pager"
+            layout="prev,pager,next"
+            :total="config.total"
+            :page-size="20"
+            :current-page.sync="config.page"
+            @current-change="changePage"
+          ></el-pagination>
+        </el-table>
+      </div>
+    </template>
+    ```
+
+  - 修改样式
+
+    ```scss
+    // user.scss
+    .common-table {
+        height: calc(100% - 62px);
+        background-color: #fff;
+        position: relative;
+        .pager {
+          position: absolute;
+          bottom: 0;
+          right: 20px;
+        }
+      }
+    ```
+
+## 7-2
+
+- Table组件使用
+
+  - 引入组件
+
+    ```js
+    // User.vue
+    import CommonForm from "@/components/CommonForm.vue";
+    import CommonTable from "@/components/CommonTable.vue";
+    export default {
+      name: "User",
+      components: {
+        CommonForm,
+        CommonTable,
+      },
+        ...
+    ```
+
+  - 在模板中使用组件(添加自定义事件)
+
+    ```vue
+    <!-- 表格 -->
+    <common-table
+      :tableData="tableData"
+      :tableLabel="tableLabel"
+      :config="config"
+      @changePage="getList()"
+      @edit="editUser"
+      @delete="deleteUser"
+    >
+    ```
+  
+    ==注意==：vue中事件处理函数的绑定是否加**括号**有一定区别：
+  
+    - **如果没有加括号**, 默认传递参数为 `MouseEvent`；
+    - **如果加了括号**,则需要在括号中使用 `$event`, 才能获取到 `MouseEvent`；
+  
+  - 在data中添加子组件porps对应的数据
+  
+    ```js
+    // Table数据
+      tableData: [],
+      tableLabel: [
+        {
+          prop: "name",
+          label: "姓名",
+        },
+        {
+          prop: "age",
+          label: "年龄",
+        },
+        {
+          prop: "birth",
+          label: "出生日期",
+          width: 200,
+        },
+        {
+          prop: "addr",
+          label: "地址",
+          width: 320,
+        },
+      ],
+      config: {
+        page: 1,
+        total: 30,
+      },
+    ```
+  
+  - 单向数据流决定了子组件无法修改父组件数据，因此需要在组件中添加自定义事件，由子组件触发一个在父组件上修改数据的事件：
+  
+    ```js
+    // CommonTable.vue
+    methods: {
+        handleEdit(row) {
+            this.@emit('edit', row)
+        },
+        handleDelete(row) {
+            this.@emit('delete', row)
+        },
+        changePage(page) {
+            this.@emit('changePage', page)
+        },
+    },
+    ```
+  
+    
+
+## 7-3
+
+- 连接后台接口获取用户列表
+
+  - 在mock.js监听url
+
+    ```js
+    Mock.mock(/user\/add/,'post', userApi.createUser);
+    Mock.mock(/user\/edit/,'post', userApi.updateUser);
+    Mock.mock(/user\/getUser/,'get', userApi.getUserList);
+    Mock.mock(/user\/del/,'get', userApi.deleteUser);
+    ```
+  
+  - 在data.js添加请求
+  
+    ```js
+    export const getUser = (params) => {
+        return axios.request({
+            url: '/user/getUser',
+            method: 'GET',
+            params
+        })
+    }
+    ```
+  
+  - 在User.vue页面中调用接口
+  
+    ```js
+    // 添加方法
+    methods: {
+        // 获取用户列表
+        getList(name = '') {
+            this.config.loading = true;
+            name ? (this.config.page = 1) : '';
+            getUser({
+                page: this.config.page,
+                name
+            }).then(res => {
+                this.tableData = res.list.map(item => {
+                    // 将性别从数字映射为汉字
+                    item.sexLabel = item.sex === 0 ? '女' : '男';
+                    return item
+                })
+                this.config.total = res.count
+                this.config.loading = false
+            })
+        },
+    },
+    // 生命周期函数
+    created() {
+      // 页面加载时即调用
+      this.getList()
+    }
+    ```
+    
+  - 不要忘记在提交新表单后更新列表，为`confirm`添加：
+  
+    ```js
+    confirm() {
+      if (this.operateType === "edit") {
+        this.$http.post("/user/edit", this.operateForm).then((res) => {
+          console.log(res);
+          this.isShow = false;
+          this.getList();
+        });
+        //...
+    }
+    ```
+  
+- 同上，从后台调用编辑与删除功能的接口：
+
+  - 编辑
+
+    ```js
+    editUser(row) {
+      this.operateType = "edit";
+      this.isShow = true;
+      this.operateForm = row;
+    },
+    ```
+
+  - 删除
+
+    ```js
+    deleteUser(row) {
+      // element-ui中封装的二次确认弹窗
+      this.$confirm("此操作不可撤回，确定要删除吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(() => {
+        const id = row.id;
+        this.$http
+          .get("user/del", {
+            params: id,
+          })
+          .then(() => {
+            this.$message({
+                type:'success',
+                message:'删除成功'
+            });
+            this.getList()
+          });
+      });
+    },
+    ```
+
+    这里使用了element-ui的`MessageBox 弹框`和`Message 消息提示`，使用全局方法`$confirm`弹出确认消息框，`$message`弹出反馈提示。更多用法见 [MessageBox 弹框](https://element.eleme.cn/#/zh-CN/component/message-box) / [Message 消息提示](https://element.eleme.cn/#/zh-CN/component/message)
+
+## 7-4
+
+- 搜索功能
+
+  ```html
+  <common-form
+      :formLabel="formLabel"
+      :form="searchForm"
+      :inline="true"
+      ref="searchForm"
+    >
+      <el-button type="primary" @click="getList(searchForm.keyword)">搜索</el-button>
+    </common-form>
+  ```
+
+  将搜索框中的输入数据 `searchForm.keyword` 作为参数传入 `getList` 处理函数，即可实现在列表搜索条目。
+
+## 7-7
+
