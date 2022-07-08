@@ -1700,5 +1700,26 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
 
   将搜索框中的输入数据 `searchForm.keyword` 作为参数传入 `getList` 处理函数，即可实现在列表搜索条目。
 
-## 7-7
+## 7-8
 
+- 编辑和删除功能实现
+
+  在子组件ConmmonTable的操作列的模板中添加 `template` 标签，并使用**作用域插槽**获取当前行的数据
+
+  ```html
+  <el-table-column label="操作" min-width="180">
+    <template v-slot:default="operate">
+      <el-button size="mini"@click="handleEdit(operate.row)">
+        编辑
+      </el-button>
+      <el-button
+        size="mini"
+        type="danger"
+        @click="handleDelete(operate.row)">
+        删除
+      </el-button>
+    </template>
+  </el-table-column>
+  ```
+
+  将 `v-slot:default="operate"` 作为具名插槽，向父组件事件传参

@@ -16,10 +16,17 @@
       </el-table-column>
       <!-- 操作列 -->
       <el-table-column label="操作" min-width="180">
-        <el-button size="mini" @click="handleEdit">编辑</el-button>
-        <el-button size="mini" type="danger" @click="handleDelete"
-          >删除</el-button
-        >
+        <template v-slot:default="operate">
+          <el-button size="mini" @click="handleEdit(operate.row)"
+            >编辑</el-button
+          >
+          <el-button
+            size="mini"
+            type="danger"
+            @click="handleDelete(operate.row)"
+            >删除</el-button
+          >
+        </template>
       </el-table-column>
       <!-- 分页组件 -->
       <!-- 
@@ -52,14 +59,14 @@ export default {
   },
   methods: {
     handleEdit(row) {
-        this.$emit('edit', row)
+      this.$emit("edit", row);
     },
     handleDelete(row) {
       console.log(row);
-        this.$emit('delete', row)
+      this.$emit("delete", row);
     },
     changePage(page) {
-        this.$emit('changePage', page)
+      this.$emit("changePage", page);
     },
   },
 };
