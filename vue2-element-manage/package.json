@@ -12,6 +12,7 @@
     "core-js": "^3.8.3",
     "echarts": "^5.3.3",
     "element-ui": "2.15.8",
+    "js-cookie": "^3.0.1",
     "mockjs": "^1.1.0",
     "node-sass": "^6.0.1",
     "vue": "^2.6.14",
