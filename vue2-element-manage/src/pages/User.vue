@@ -1,16 +1,8 @@
 <template>
   <div class="manage">
     <!-- 对话框组件 -->
-    <el-dialog
-      :title="operateType === 'add' ? '新增用户' : '更新用户'"
-      :visible.sync="isShow"
-    >
-      <common-form
-        :formLabel="operateFormLabel"
-        :form="operateForm"
-        :inline="true"
-        ref="form"
-      ></common-form>
+    <el-dialog :title="operateType === 'add' ? '新增用户' : '更新用户'" :visible.sync="isShow">
+      <common-form :formLabel="operateFormLabel" :form="operateForm" :inline="true" ref="form"></common-form>
       <div class="dialog-footer">
         <el-button @click="isShow">取消</el-button>
         <el-button @click="confirm" type="primary">确定</el-button>
@@ -19,24 +11,13 @@
     <!-- 搜索表单组件 -->
     <div class="manage-header">
       <el-button type="primary" @click="addUser">+ 新增</el-button>
-      <common-form
-        :formLabel="formLabel"
-        :form="searchForm"
-        :inline="true"
-        ref="searchForm"
-      >
+      <common-form :formLabel="formLabel" :form="searchForm" :inline="true" ref="searchForm">
         <el-button type="primary" @click="getList(searchForm.keyword)">搜索</el-button>
       </common-form>
     </div>
     <!-- 表格 -->
-    <common-table
-      :tableData="tableData"
-      :tableLabel="tableLabel"
-      :config="config"
-      @changePage="getList()"
-      @edit="editUser"
-      @delete="deleteUser"
-    >
+    <common-table :tableData="tableData" :tableLabel="tableLabel" :config="config" @changePage="getList()"
+      @edit="editUser" @delete="deleteUser">
     </common-table>
   </div>
 </template>
@@ -153,13 +134,13 @@ export default {
     confirm() {
       if (this.operateType === "edit") {
         this.$http.post("/user/edit", this.operateForm).then((res) => {
-          console.log(res);
+          // console.log(res);
           this.isShow = false;
           this.getList();
         });
       } else {
         this.$http.post("/user/add", this.operateForm).then((res) => {
-          console.log(res);
+          // console.log(res);
           this.isShow = false;
         });
       }
@@ -199,10 +180,11 @@ export default {
       this.operateType = "edit";
       this.isShow = true;
       this.operateForm = row;
+      console.log(`编辑项:${row.name} ${row.id}`);
+
     },
     // 删除用户项
     deleteUser(row) {
-      console.log(row);
       // element-ui中封装的二次确认弹窗
       this.$confirm("此操作不可撤回，确定要删除吗？", "提示", {
         confirmButtonText: "确定",
@@ -211,7 +193,6 @@ export default {
       }).then(
         () => {
           const id = row.id;
-          console.log(id);
           this.$http
             .get("user/del", {
               params: { id },
@@ -222,6 +203,7 @@ export default {
                 message: "删除成功",
               });
               this.getList();
+              console.log(`删除项:${row.name} ${row.id}`);
             });
         },
         (res) => console.log(res)

@@ -8,6 +8,13 @@
 
 - 安装 @vue/cli 脚手架
 
+
+  - 从镜像安装cnpm
+
+    ```
+    npm install -g cnpm --registry=https://registry.npm.taobao.org
+    ```
+    
   - 安装yarn
 
     ```
@@ -1722,4 +1729,232 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
   </el-table-column>
   ```
 
-  将 `v-slot:default="operate"` 作为具名插槽，向父组件事件传参
+  将 `v-slot:default="operate"` 作为具名插槽，可向父组件事件传参，将表格内的数据传入父组件
+
+## 7-11
+
+### 权限管理-用户登录
+
+- 新建Login页面，并添加至路由
+
+- 编写登陆页面表单
+
+  ```html
+  // Login.vue
+  <template>
+    <!-- 容器 -->
+    <div class="container">
+    <!-- 表单组件 -->
+      <el-form
+        :model="form"
+        status-icon
+        :rules="rules"
+        ref="loginForm"
+        label-width="100px"
+        class="login-container"
+    >
+        <!-- 标题 -->
+        <h3 class="login-title">通用后台管理系统</h3>
+        <!-- 输入框 -->
+        <el-form-item
+          label="用户名"
+          label-width="60px"
+          prop="userName"
+          class="username"
+        >
+          <el-input
+            type="input"
+            v-model="form.userName"
+            auto-complete="off"
+            placeholder="请输入用户名"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          label="密码"
+          label-width="60px"
+          prop="password"
+          class="password"
+        >
+          <el-input
+            type="password"
+            v-model="form.password"
+            auto-complete="off"
+            placeholder="请输入密码"
+          ></el-input>
+        </el-form-item>
+        <!-- 登录按钮 -->
+        <el-form-item class="login-submit">
+          <el-button
+            type="primary"
+            @click="login"
+            class="login-submit"
+            style="margin: auto"
+            >登录</el-button
+          >
+        </el-form-item>
+      </el-form>
+    </div>
+  </template>
+  ```
+  
+- 编写校验规则
+
+  ```js
+  // 校验规则
+  rules: {
+      userName: [
+        { require: true, message: "请输入用户名", trigger: "blur" },
+        {
+          min: 6,
+          max: 18,
+          message: "用户名长度应在4-18位之间",
+          trigger: "blur",
+        },
+      ],
+      password: [
+        { require: true, message: "请输入密码", trigger: "blur" },
+        {
+          min: 6,
+          max: 18,
+          message: "密码长度应在4-10位之间",
+          trigger: "blur",
+        },
+      ],
+  }
+  ```
+
+	>  elementui的 Form 组件提供了**表单验证**的功能。规则校验的核心为为async-validator插件，Element-UI使用了该插件，并进行了封装。
+	>
+	>  只需要通过 `rules` 属性传入约定的验证规则，并将 Form-Item 的 `prop` 属性设置为需校验的字段名即可。 
+	>
+	>  具体校验规则见：[校验规则](https://www.cnblogs.com/kuki/p/15190259.html)。
+
+- 添加登录凭证
+
+  > 使用token登录
+  >
+  > **token**是服务端生成的一串加密字符串、以作客户端进行请求的一个“令牌” 。 当用户第一次使用账号密码成功进行登录后，服务器便生成一个Token及Token失效时间并将此返回给客户端，若成功登陆，以后客户端只需在有效时间内带上这个Token前来请求数据即可，无需再次带上用户名和密码。 
+  >
+  > 使用流程：
+  >
+  > 1. 用户使用用户名和密码请求服务器
+  > 2. 服务器进行验证用户信息
+  > 3. 服务器通过验证发送给用户一个token
+  > 4. 客户端存储token，并在每次请求时附上token
+  > 5. 服务端验证token值，并返回数据
+
+  - 在vuex的store中添加user.js文件
+
+    此处需要缓存token，依赖第三方库 `js-cookie` 
+
+    ```
+    yarn add js-cookie
+    ```
+
+    ```js
+    // user.js
+    import Cookie from 'js-cookie'
+    
+    export default {
+        state: {
+            token: ''
+        },
+        mutations: {
+            // 设置token
+            setToken(state, value) {
+                state.token = value;
+                Cookie.set('token', value)
+            },
+            // 清除token
+            clearToken(state) {
+                state.token = '';
+                Cookie.remove('token')
+            },
+            // 获取token
+            getToken(state) {
+                state.token = Cookie.get('token') || state.token
+            }
+        }
+    }
+    ```
+
+    在vuex出口引入`user.js`
+
+    ```js
+    // @/store/index.js
+    // ...
+    import User from './user';
+    export default new Vuex.Store({
+        modules: {
+            //...
+            User
+        }
+    })
+    ```
+
+    
+
+  - 使用导航守卫
+
+    > 导航守卫是路由跳转过程中的一些钩子函数。路由跳转的过程分为跳转前中后等等细小的过程，在每一个过程中都有一函数，这些函数为我们提供了操作的时机。
+    >
+    > 导航守卫分为三类：
+    >
+    > - 全局路由钩子：所有路由配置的组件都会触发
+    >
+    >   beforeEach(to,from, next)、beforeResolve(to,from, next)、afterEach(to,from)；
+    >
+    > - 独享路由钩子：单个路由配置中设置的钩子函数
+    >
+    >   beforeEnter(to,from, next)；
+    >
+    > - 组件内路由钩子：在组件内执行的钩子函数
+    >
+    >   beforeRouteEnter(to,from, next)、beforeRouteUpdate(to,from, next)、beforeRouteLeave(to,from, next)
+    >
+    > 导航守卫的参数有：
+    >
+    > - to：目标路由对象；
+    >
+    > - from：即将要离开的路由对象；
+    >
+    > - next：回调函数，决定是否展示你要看到的路由页面
+
+    ```js
+    // main.js
+    // 创建全局路由守卫，监听页面
+    router.beforeEach((to, from, next) => {
+      // 获取已保存的cookie，页面刷新后可以保留登录状态
+      store.commit('getToken');
+      const token = store.state.User.token;
+      // 如果token不存在，且当前页不为登录页，则导航至登录页
+      if (!token && to.name !== 'login') {
+        next({ name: 'login' })
+      } else {
+        next()
+      }
+    })
+    ```
+
+    
+
+  - 编写登录的点击事件
+
+    使用Mock模拟后台提供token
+
+    ```js
+    // Login.vue
+    import Mock from "mockjs";
+    // ...
+    methods: {
+      login() {
+        // 点击登陆后，使用Mock模拟后台提供token
+        const token = Mock.Random.guid();
+        this.$store.commit("setToken", token);
+        this.$router.push({ name: "home" });
+      },
+    },
+    ```
+
+    
+

@@ -67,16 +67,10 @@ export default {
   // 增加用户
   createUser: (config) => {
     // console.log(config);
-    const { name, addr, age, birth, sex } = JSON.parse(config.body);
-    console.log(JSON.parse(config.body));
-    List.unshift({
-      id: Mock.Random.guid(),
-      name,
-      addr,
-      age,
-      birth,
-      sex,
-    });
+    const newItem = JSON.parse(config.body);
+    newItem.id = Mock.Random.guid();
+    List.unshift(newItem);
+    console.log('新增项:',newItem);
     return {
       code: 20000,
       data: {
@@ -86,7 +80,6 @@ export default {
   },
   // 删除用户
   deleteUser: (config) => {
-    console.log(config);
     const { id } = param2Obj(config.url);
     if (!id) {
       return {

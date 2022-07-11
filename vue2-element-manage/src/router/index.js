@@ -2,6 +2,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 // 导入要路由的组件
+import Login from '../pages/Login.vue';
 import Main from '../pages/Main.vue';
 import Home from '../pages/Home.vue';
 import User from '../pages/User.vue';
@@ -53,6 +54,12 @@ const routes = [
             },
         ]
     },
+    {
+        path: '/login',
+        name: 'login',
+        label: '登录',
+        component: Login
+    }
 
 ]
 

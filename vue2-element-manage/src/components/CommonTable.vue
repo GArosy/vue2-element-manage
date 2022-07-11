@@ -62,7 +62,6 @@ export default {
       this.$emit("edit", row);
     },
     handleDelete(row) {
-      console.log(row);
       this.$emit("delete", row);
     },
     changePage(page) {
