@@ -1956,5 +1956,138 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
     },
     ```
 
-    
+## 7-12
+
+### 登录接口逻辑实现
+
+在登录接口调用成功之后，我们得到了menu和token数据，从而提供了实现根据权限渲染菜单的可能性。
+
+这里将menu数据传入store中存放和处理，并将menu中的路由信息动态传入router中
+
+- 新建后端接口permission.js，编写验证用户的接口方法
+
+  ```js
+  import Mock from "mockjs";
+  export default {
+    getMenu: (config) => {
+      const { userName, password } = JSON.parse(config.body);
+      // 判断用户是否存在
+      // 判断账号密码是否对应
+      if (userName === "admin" && password === "admin") {
+        return {
+          code: 20000,
+          data: {
+            menu: [
+              {
+                path: "/",
+                name: "home",
+                label: "首页",
+                icon: "s-home",
+                url: "Home/Home",
+              },
+              {
+                path: "/mall",
+                name: "mall",
+                label: "商品管理",
+                icon: "video-play",
+                url: "MallManage/MallManage",
+              },
+              {
+                path: "/user",
+                name: "user",
+                label: "用户管理",
+                icon: "user",
+                url: "UserManage/UserManage",
+              },
+              {
+                label: "其他",
+                icon: "location",
+                children: [
+                  {
+                    path: "/page1",
+                    name: "page1",
+                    label: "页面1",
+                    icon: "setting",
+                    url: "Other/Page1",
+                  },
+                  {
+                    path: "/page2",
+                    name: "page2",
+                    label: "页面2",
+                    icon: "setting",
+                    url: "Other/Page2",
+                  },
+                ],
+              },
+            ],
+            token: Mock.Random.guid(),
+            message: "获取成功",
+          },
+        };
+      } else if (userName === "user" && password === "user") {
+        return {
+          code: 20000,
+          data: {
+            menu: [
+              {
+                path: "/",
+                name: "home",
+                label: "首页",
+                icon: "s-home",
+                url: "Home/Home",
+              },
+              {
+                path: "/mall",
+                name: "mall",
+                label: "商品管理",
+                icon: "video-play",
+                url: "MallManage/MallManage",
+              },
+            ],
+            token: Mock.Random.guid(),
+            message: "获取成功",
+          },
+        };
+      } else {
+        return {
+          code: -999,
+          data: {
+            message: "密码错误",
+          },
+        };
+      }
+    },
+  };
+  
+  ```
+
+- 在mock.js中拦截接口
+
+  ```js
+  import permissionApi from './mockServerData/permission';
+  
+  Mock.mock(/permission\/getMenu/,'post', permissionApi.getMenu);
+  ```
+
+- 在data.js 中定义请求接口
+
+  ```js
+  export const getMenu = (params) => {
+      return axios.request({
+          url: '/permission/getMenu',
+          method: 'POST',
+          params
+      })
+  }
+  ```
+
+- 在Login.vue页面中调用接口
+
+  ```js
+  import { getMenu } from "@/api/data";
+  
+  
+  ```
+
+  
 
