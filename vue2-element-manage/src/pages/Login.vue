@@ -55,6 +55,7 @@
 
 <script>
 import Mock from "mockjs";
+import { getMenu } from "@/api/data";
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -87,10 +88,22 @@ export default {
   },
   methods: {
     login() {
+      // 调用后台接口
+      getMenu(this.form).then((res) => {
+        if (res.code === 20000) {
+          this.$store.commit('clearMenu');
+          this.$store.commit('setMenu', res.data.menu);
+          this.$store.commit('setToken', res.data.token);
+          this.$store.commit('addMenu', this.$router);
+          this.$router.push({name: 'home'})
+        } else {
+          this.$message.warning(res.data.message)
+        }
+      });
       // 点击登陆后，使用Mock模拟后台提供token
-      const token = Mock.Random.guid();
-      this.$store.commit("setToken", token);
-      this.$router.push({ name: "home" });
+      // const token = Mock.Random.guid();
+      // this.$store.commit("setToken", token);
+      // this.$router.push({ name: "home" });
     },
   },
 };
