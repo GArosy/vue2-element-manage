@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import Mock from "mockjs";
+// import Mock from "mockjs";
 import { getMenu } from "@/api/data";
 
 export default {
@@ -68,7 +68,7 @@ export default {
         userName: [
           { require: true, message: "请输入用户名", trigger: "blur" },
           {
-            min: 6,
+            min: 4,
             max: 18,
             message: "用户名长度应在4-18位之间",
             trigger: "blur",
@@ -77,7 +77,7 @@ export default {
         password: [
           { require: true, message: "请输入密码", trigger: "blur" },
           {
-            min: 6,
+            min: 4,
             max: 18,
             message: "密码长度应在4-10位之间",
             trigger: "blur",
@@ -90,14 +90,16 @@ export default {
     login() {
       // 调用后台接口
       getMenu(this.form).then((res) => {
-        if (res.code === 20000) {
-          this.$store.commit('clearMenu');
-          this.$store.commit('setMenu', res.data.menu);
-          this.$store.commit('setToken', res.data.token);
-          this.$store.commit('addMenu', this.$router);
-          this.$router.push({name: 'home'})
+        console.log(res);
+        if (res.data.code === 20000) {
+          this.$store.commit("clearMenu");
+          this.$store.commit("setMenu", res.data.data.menu);
+          this.$store.commit("setToken", res.data.data.token);
+          this.$store.commit("addMenu", this.$router);
+          this.$router.push({ name: "home" });
+          this.$message.success(res.data.data.message);
         } else {
-          this.$message.warning(res.data.message)
+          this.$message.error(res.data.data.message);
         }
       });
       // 点击登陆后，使用Mock模拟后台提供token

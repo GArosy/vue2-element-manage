@@ -1,4 +1,3 @@
-import router from "@/router";
 import Cookie from "js-cookie";
 
 export default {
@@ -38,6 +37,7 @@ export default {
         state.currentMenu = null;
       }
     },
+    // 菜单权限相关
     setMenu(state, value) {
       state.menu = value;
       Cookie.set("menu", JSON.stringify(value));
@@ -46,7 +46,7 @@ export default {
       state.menu = [];
       Cookie.remove("menu");
     },
-    addMenu(state, value) {
+    addMenu(state, router) {
       // 如果cookie中没有menu则不做处理
       if (!Cookie.get("menu")) {
         return;
@@ -59,19 +59,20 @@ export default {
         if (item.children) {
           // 为菜单中的路由添加路径
           item.children = item.children.map((item) => {
-            item.conponent = () => import(`@/pages/${item.url}`);
+            item.component = () => import(`@/pages/${item.url}`);
             return item
           })
           manuArray.push(...item.children)
         } else {
           // 一级菜单
-          item.conponent = () => import(`@/pages/${item.url}`);
+          item.component = () => import(`@/pages/${item.url}`);
           manuArray.push(item)
         }
       });
       // 路由的动态添加
       manuArray.forEach(item => {
-        router.addRoutes('main', item)
+        console.log(item);
+        router.addRoute('main', item)
       });
     },
   },

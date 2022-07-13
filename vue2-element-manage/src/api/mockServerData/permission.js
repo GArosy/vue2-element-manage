@@ -1,9 +1,11 @@
 import Mock from "mockjs";
 export default {
-  getMenu: (config) => {
+  getMenu: config => {
+    // 解析传入的json字符串，解构为用户名和密码
     const { userName, password } = JSON.parse(config.body);
     // 判断用户是否存在
     // 判断账号密码是否对应
+    // console.log(userName, password);
     if (userName === "admin" && password === "admin") {
       return {
         code: 20000,
@@ -52,7 +54,7 @@ export default {
             },
           ],
           token: Mock.Random.guid(),
-          message: "获取成功",
+          message: "管理员登录成功",
         },
       };
     } else if (userName === "user" && password === "user") {
@@ -76,14 +78,14 @@ export default {
             },
           ],
           token: Mock.Random.guid(),
-          message: "获取成功",
+          message: "用户登录成功",
         },
       };
     } else {
       return {
         code: -999,
         data: {
-          message: "密码错误",
+          message: "用户名或密码错误",
         },
       };
     }

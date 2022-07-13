@@ -1960,7 +1960,7 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
 
 ### 登录接口逻辑实现
 
-在登录接口调用成功之后，我们得到了menu和token数据，从而提供了实现根据权限渲染菜单的可能性。
+在登录接口调用成功之后，我们得到了menu和token数据，从而提供了实现**根据权限渲染菜单**的可能性。
 
 这里将menu数据传入store中存放和处理，并将menu中的路由信息动态传入router中
 
@@ -2081,13 +2081,140 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
   }
   ```
 
+- 在store中添加menu相关的state和mutations
+
+  ```js
+  // tab.js
+  // 引入js-cookie
+  
+  
+  state: {
+  	// ...
+    menu: []
+  },
+  mutations: {
+    // ...
+    setMenu(state, value) {
+      state.menu = value;
+      Cookie.set("menu", JSON.stringify(value));
+    },
+    clearMenu(state) {
+      state.menu = [];
+      Cookie.remove("menu");
+    },
+    addMenu(state, value) {
+      // 如果cookie中没有menu则不做处理
+      if (!Cookie.get("menu")) {
+        return;
+      }
+      const menu = JSON.parse(Cookie.get("menu"));
+      state.menu = menu;
+      const manuArray = [];
+      menu.forEach(item => {
+        // 二级菜单
+        if (item.children) {
+          // 为菜单中的路由添加路径
+          item.children = item.children.map((item) => {
+            item.conponent = () => import(`@/pages/${item.url}`);
+            return item
+          })
+          manuArray.push(...item.children)
+        } else {
+          // 一级菜单
+          item.conponent = () => import(`@/pages/${item.url}`);
+          manuArray.push(item)
+        }
+      });
+      // 路由的动态添加
+      manuArray.forEach(item => {
+        router.addRoutes('main', item)
+      });
+    }
+  }
+  ```
+
+  
+
 - 在Login.vue页面中调用接口
 
   ```js
   import { getMenu } from "@/api/data";
   
+  methods: {
+      login() {
+        // 调用后台接口
+        getMenu(this.form).then((res) => {
+          if (res.code === 20000) {
+            this.$store.commit('clearMenu');
+            this.$store.commit('setMenu', res.data.menu);
+            this.$store.commit('setToken', res.data.token);
+            this.$store.commit('addMenu', this.$router);
+            this.$router.push({name: 'home'})
+          } else {
+            this.$message.warning(res.data.message)
+          }
+        });
+      },
+  ```
+
+
+
+
+## 7-13
+
+- 在组件ConmmonAside中重新动态获取menu
+
+  ```js
+  // CommonAside.vue
+  // 初始化menu
+  data() {
+    return {
+      menu: []
+    };
+  },
+  // 重写computed：新增asyncMenu，将之前的计算属性中的menu改为asyncMenu
+  computed: {
+    noChildren() {
+      return this.asyncMenu.filter((item) => !item.children);
+    },
+    hasChildren() {
+      return this.asyncMenu.filter((item) => item.children);
+    },
+    isCollapse() {
+      return this.$store.state.Tab.isCollapse;
+    },
+    asyncMenu() {
+      return this.$store.state.Tab.menu
+    }
+  },
   
   ```
 
-  
+- 出现的问题：
+
+  - 点击登录后axios发送含有用户名和密码的post请求，但后台`getMenu`接口获取不到请求体body
+
+    原因：axios请求配置名称错误。**axios请求配置的名称是特定的！**
+
+    ```js
+    export const getMenu = (params) => {
+      return axios.request({
+        url: "/permission/getMenu",
+        method: "post",
+        params
+      });
+    };
+    ```
+
+    这里的`params`错误，应为`data: params`。
+
+  - 后台接口`addMenu`动态添加路由时报错：`Uncaught (in promise) TypeError: router.addRoute is not a function`
+
+    原因：**新版本`router.addRoutes`已废弃：使用 `router.addRoute()` 代替。**这里我尝试打印了$router，发现其原型中没有 `addRoute` 方法，原因可能是 vue-router 版本冲突。可通过重新安装3版本的 vue-router 解决
+
+    ```
+    yarn add vue-router@3
+    ```
+
+    
 
