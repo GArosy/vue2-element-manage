@@ -1,22 +1,22 @@
-import Vue from 'vue'
-import App from './App.vue'
-import './style/index.scss';
+import Vue from "vue";
+import App from "./App.vue";
+import "./style/index.scss";
 
 // 全局引入element-ui
-import ElementUI from 'element-ui';
+import ElementUI from "element-ui";
 
 // 按需引入element-ui
 // import { Button } from 'element-ui';
 // import 'element-ui/lib/theme-chalk/index.css';
 
 // 引入vue-router
-import router from './router';
+import router from "./router";
 // 引入vuex
-import store from './store/index';
+import store from "./store/index";
 // 引入axios
-import axios from 'axios';
+import axios from "axios";
 // 引入mockjs
-import '@/api/mock.js';
+import "@/api/mock.js";
 
 Vue.config.productionTip = false;
 
@@ -29,18 +29,24 @@ Vue.prototype.$http = axios;
 // 创建全局路由守卫，监听页面
 router.beforeEach((to, from, next) => {
   // 获取已保存的cookie，页面刷新后可以保留登录状态
-  store.commit('getToken');
+  store.commit("getToken");
   const token = store.state.User.token;
   // 如果token不存在，且当前页不为登录页，则导航至登录页
-  if (!token && to.name !== 'login') {
-    next({ name: 'login' })
+  if (!token && to.name !== "login") {
+    next({ name: "login" });
+    // 如果token存在，且当前页为登录页（已登录状态），则导航至首页
+  } else if (token && to.name === "login") {
+    next({ name: "home" });
   } else {
-    next()
+    next();
   }
-})
+});
 
 new Vue({
-  render: h => h(App),
+  render: (h) => h(App),
   router,
-  store
-}).$mount('#app')
+  store,
+  created() {
+    store.commit("addMenu", router);
+  },
+}).$mount("#app");
