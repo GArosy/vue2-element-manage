@@ -5,7 +5,7 @@ export default {
     isCollapse: false,
     tabsList: [
       {
-        path: "/",
+        path: "/home",
         name: "home",
         label: "首页",
         icon: "home",
@@ -71,7 +71,6 @@ export default {
       });
       // 路由的动态添加
       manuArray.forEach(item => {
-        console.log(item);
         router.addRoute('main', item)
       });
     },

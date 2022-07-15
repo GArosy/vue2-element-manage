@@ -76,6 +76,7 @@ export default {
     handleClose(key, keyPath) {
       console.log(key, keyPath);
     },
+    // 点击跳转
     clickMenu(item) {
       // console.log(this.$router);
       this.$router
@@ -83,7 +84,7 @@ export default {
           name: item.name,
         })
         .catch((e) => {}); // 使用 catch 方法捕获 router.push 异常，解决重复点击报错问题
-      // 面包屑
+      // 添加面包屑
       this.$store.commit("selectMenu", item);
     },
   },

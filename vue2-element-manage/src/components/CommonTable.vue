@@ -1,6 +1,6 @@
 <template>
   <div class="common-table">
-    <el-table :data="tableData" height="90%" stripe>
+    <el-table :data="tableData" height="75vh" stripe>
       <!-- 表头 -->
       <el-table-column
         v-for="item in tableLabel"
@@ -34,15 +34,15 @@
         通过 @current-change 事件和 :current-page.sync 属性来处理当前页变动
         :page-size 每页显示条目个数
       -->
-      <el-pagination
-        class="pager"
-        layout="prev,pager,next"
-        :total="config.total"
-        :page-size="20"
-        :current-page.sync="config.page"
-        @current-change="changePage"
-      ></el-pagination>
     </el-table>
+    <el-pagination
+      class="pager"
+      layout="total,prev,pager,next"
+      :total="config.total"
+      :page-size="20"
+      :current-page.sync="config.page"
+      @current-change="changePage"
+    ></el-pagination>
   </div>
 </template>
 

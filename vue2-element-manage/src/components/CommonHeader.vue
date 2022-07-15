@@ -9,7 +9,8 @@
       ></el-button>
       <!-- <h3 style="color: #fff;">首页</h3> -->
       <!-- 使用面包屑组件 -->
-      <el-breadcrumb separator="/">
+      <!-- 用 ‘>’ 分隔-->
+      <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item
           v-for="item in tags"
           :key="item.path"
@@ -65,6 +66,7 @@ header {
 </style>
 
 <script>
+// 引入vuex辅助函数mapState生成计算属性
 import { mapState } from "vuex";
 export default {
   name: "CommonHeader",
@@ -84,7 +86,7 @@ export default {
     }
   },
   computed: {
-    // 使用对象展开运算符将此对象混入到外部对象中
+    // 使用对象展开运算符将mapState内的数据展开至计算属性中
     ...mapState({
       // 获取tabsList数组
       tags: (state) => state.Tab.tabsList,
