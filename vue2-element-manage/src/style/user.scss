@@ -1,6 +1,6 @@
 .manage {
   margin-top: 20px;
-  height: 100%;
+  height: 88vh;
   .manage-header {
     display: flex;
     justify-content: space-between;
@@ -11,13 +11,13 @@
   }
   .common-table {
     height: calc(100% - 62px);
-    background-color: #fff;
     position: relative;
     margin-top: 1rem;
+    background-color: #fff;
     .pager {
       position: absolute;
-      bottom: 0;
-      right: 20px;
+      bottom: 1rem;
+      right: 0;
     }
   }
 }
