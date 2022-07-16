@@ -2216,5 +2216,163 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
     yarn add vue-router@3
     ```
 
-    
 
+
+## 7-14
+
+菜单权限功能初步实现，但存在页面刷新之后菜单内容消失的问题。因为动态获取菜单的过程是依靠点击登录按钮后调用`addMenu`实现的。
+
+要实现页面刷新之后仍照常获取菜单，需要在main.js的created周期添加`addMenu`:
+
+```js
+new Vue({
+  render: h => h(App),
+  router,
+  store,
+  created() {
+    store.commit('addMenu', router)
+  }
+}).$mount('#app')
+```
+
+### 权限管理-登出功能
+
+- 为CommonHeader组件的退出按键添加事件
+
+  在组件内使用`v-on`只能监听自定义事件并需要使用`$emit` 提交。如需在组件根元素上绑定事件，需要添加`.native`修饰符：
+
+  ```js
+  // ...
+  <el-dropdown-item @click.native="logOut">退出</el-dropdown-item>
+  // ...
+  
+  methods: {
+  	// ...
+    logOut() {
+      this.$store.commit('clearToken')  // 清除token
+      this.$store.commit('clearMenu')   // 清除menu
+      this.$router.push({name: 'login'})  // 跳转至登陆页面
+    }
+  },
+  ```
+
+权限管理功能结束
+
+## 7-15
+
+### 部署阿里云服务器
+
+公网IP：47.100.121.250
+
+域名解析： (http://garosy.top)
+
+- 使用远程连接工具Xshell/Xftp
+  - 下载安装
+  - 新建会话，设置主机为公网IP，先通过远程连接密码（6位大小写）登录，用户名root，再输入实例密码（8位大小写）。出现Welcome字样表示连接成功。
+
+## 7-16
+
+### 安装Nginx
+
+- 安装编译工具及库文件：
+
+  ```
+  # yum -y install make zlib zlib-devel gcc-c++ libtool  openssl openssl-devel
+  ```
+
+- 安装PCRE依赖， 让 Nginx 支持 Rewrite 功能：
+
+  ```nginx
+  进入本地依赖目录
+  # cd /usr/local/src/
+  
+  下载源码
+  # wget http://downloads.sourceforge.net/project/pcre/pcre/8.35/pcre-8.35.tar.gz
+  
+  解压包
+  # tar zxvf pcre-8.35.tar.gz
+  
+  进入包目录
+  # cd pcre-8.35
+  
+  配置
+  # ./configure
+  
+  编译并安装
+  # make && make install
+  
+  成功后查看版本
+  # pcre-config --version
+  显示8.35
+  ```
+
+- 安装nginx
+
+  ```nginx
+  进入本地依赖目录
+  # cd /usr/local/src/
+  
+  下载源码
+  # wget https://nginx.org/download/nginx-1.23.0.tar.gz
+  
+  解压
+  # tar xf nginx-1.23.0.tar.gz
+  此时目录下多出了`nginx-1.23.0`文件，其中有绿色的可执行文件`configure`
+  
+  进入包目录
+  # cd nginx-1.23.0
+  
+  配置
+  # ./configure --prefix=/usr/local/webserver/nginx
+  
+  编译
+  # make
+  
+  安装
+  # make install
+  
+  成功后查看版本
+  # /usr/local/webserver/nginx/sbin/nginx -v
+  nginx version: nginx/1.23.0
+  ```
+
+> 源码安装要经过 配置-->编译-->安装 三步
+>
+> - 配置 configure 
+>
+>   1. 检查环境是否满足安装条件
+>
+>   2. `--prefix=path` 指定安装路径
+>
+>   3. `--help` 配置参数，选择模块功能等等
+
+> Nginx相关目录
+>
+> - 启动文件	/usr/local/webserver/nginx/sbin/nginx
+> - 模块	/usr/local/webserver/nginx/sbin/nginx
+> - 配置文件目录	/usr/local/webserver/nginx/conf
+> - 配置文件	/usr/local/webserver/nginx/conf/nginx.conf
+> - pid文件	/usr/local/webserver/nginx/logs/nginx.pid
+
+
+
+- 启动nginx
+
+  ```nginx
+  # /usr/local/webserver/nginx/sbin/nginx
+  ```
+
+- 验证nginx
+
+  ```
+  netstat -ntpl
+  lsof -i :80
+  ```
+
+   把服务器ip地址放到浏览器中，即可发现跳转到nginx的欢迎页面！
+
+> 注意：
+>
+> 阿里云服务器默认只打开22端口用于Xshell连接，需要在安全组手动添加80端口以访问网页
+
+Nginx成功安装之后，接下来只需要把网页放到服务器中的指定位置即可，再针对配置文件做修改。有域名的条件下，可以把域名和自己服务器关联起来做解析。 
