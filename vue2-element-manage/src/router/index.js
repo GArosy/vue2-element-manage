@@ -56,6 +56,7 @@ const routes = [
 // 创建路由实例并传递 `routes` 配置
 const router = new VueRouter({
   mode: "history",
+  base: "/vue-manage/", // 配置 nginx 访问结构
   routes, // `routes: routes` 的缩写
 });
 

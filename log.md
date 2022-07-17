@@ -2376,3 +2376,176 @@ new Vue({
 > 阿里云服务器默认只打开22端口用于Xshell连接，需要在安全组手动添加80端口以访问网页
 
 Nginx成功安装之后，接下来只需要把网页放到服务器中的指定位置即可，再针对配置文件做修改。有域名的条件下，可以把域名和自己服务器关联起来做解析。 
+
+### Nginx配置详解
+
+nginx.conf的默认配置文件可以总体归纳为三个模块： 
+
+```nginx
+#全局模块
+events {
+    #events模块
+}
+
+http 
+{
+
+   #http全局模块
+ 
+    server 
+    {
+    
+        #server全局模块
+     
+        location [PATTERN]{
+           #location模块
+        }
+    }
+
+}  
+```
+
+1. 全局块：
+
+   配置影响nginx全局的指令。一般有运行nginx服务器的用户组，nginx进程pid存放路径，日志存放路径，配置文件引入，允许生成worker process数等。
+
+2. events块：
+
+   配置影响nginx服务器或与用户的网络连接。有每个进程的最大连接数，选取哪种事件驱动模型处理连接请求，是否允许同时接受多个网路连接，开启多个网络连接序列化等。
+
+3. http块：
+
+   可以嵌套多个server，配置代理，缓存，日志定义等绝大多数功能和第三方模块的配置。如文件引入，mime-type定义，日志自定义，是否使用sendfile传输文件，连接超时时间，单连接请求数等。
+
+4. server块：
+
+   配置虚拟主机的相关参数，一个http中可以有多个server。
+
+5. location块：
+
+   配置请求的路由，以及各种页面的处理情况。
+
+### 配置SSL(https)证书
+
+- 此操作的前提是编译安装Nginx时必须添加`–with-http_ssl_module`配置
+
+  > 如需在已安装的情况下添加模块，详见：  https://blog.csdn.net/guo_qiangqiang/article/details/95622649
+
+- 在/usr/local/webserver/nginx目录下创建cert目录用于存放证书
+
+- 修改 nginx.conf 文件的 HTTPS server 部分。（这部分默认是被注释掉的）：
+
+  ```nginx
+  server {
+      listen 443;
+      server_name localhost;
+      ssl on;
+      root html;
+      index index.html index.htm;
+      ssl_certificate   cert/xxxxxxxxxx.pem;		#证书路径
+      ssl_certificate_key  cert/xxxxxxxxxx.key;	#私钥路径
+      ssl_session_timeout 5m;
+      ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
+      ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+      ssl_prefer_server_ciphers on;
+      location / {
+          root html;
+          index index.html index.htm;
+      }
+  }
+  ```
+
+- 在阿里云控制台部署证书
+
+- 重启nginx配置项
+
+  ```
+  ./nginx -s reload
+  ```
+
+
+
+
+## 7-17
+
+### Nginx 部署 Vue 项目
+
+- 项目打包
+  - 配置 `vue.config.js` ：
+
+    ```js
+    module.exports = defineConfig({
+      transpileDependencies: true,
+      lintOnSave: false,
+      publicPath: '/vue-manage/',  // 公共路径
+      devServer: {  // 配置服务器
+        port: 8080, // 端口号
+        open: true, // 自动打开浏览器
+      }
+    })
+    ```
+
+  - 指定router `index.js` 的路由基本路径：
+
+    ```js
+    const router = new VueRouter({
+      mode: "history",
+      base: "/vue-manage/", // 配置 nginx 访问结构
+      routes, // `routes: routes` 的缩写
+    });
+    ```
+
+  - 打包
+
+    ```
+    yarn build
+    ```
+
+    
+
+- 部署到服务端nginx
+
+  - 复制dist至服务器目录 /usr/local/webserver/nginx/html ，将dist目录重命名为 `vue-manage` 
+
+  - 更新nginx配置文件
+
+    ```nginx
+    // nginx.conf
+    
+    // ...
+    
+    server {
+        #监听端口
+        listen 80;
+        #监听地址
+        server_name localhost;
+    
+        #access_log  logs/host.access.log  main;
+        location / {
+          # 配置根目录的地址
+          root html;
+          index index.html index.htm;
+        }
+        
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+          root html;
+        }
+    
+        # 配置前台服务 比如:8080/vue-manage/index.html
+        location ^~ /vue-manage {
+          # 处理 Vue 单页面应用
+          try_files $uri $uri/ /vue-manage/index.html;
+        }
+      }
+    
+    // ...
+    ```
+
+  - 热重载nginx
+
+    ```
+    ./nginx -s reload
+    ```
+
+- 现在即可通过公网ip `http://47.100.121.250/vue-manage` 访问我的vue项目了！
