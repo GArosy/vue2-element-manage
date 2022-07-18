@@ -3,7 +3,7 @@
     <el-row class="home" :gutter="20">
       <!-- 第一列 -->
       <!-- 总高16+1+26=44rem -->
-      <el-col style="margin-top: 20px" :span="8">
+      <el-col :span="8">
         <!-- card组件-用户信息 -->
         <el-card shadow="hover" style="height: 16rem">
           <div class="user">
@@ -37,7 +37,7 @@
       </el-col>
       <!-- 第二列 -->
       <!-- 总高5+1+5+1+16+1+15=44rem -->
-      <el-col style="margin-top: 20px" :span="16">
+      <el-col :span="16">
         <!-- card组件-订单 -->
         <div class="count">
           <el-card
