@@ -2549,3 +2549,20 @@ http
     ```
 
 - 现在即可通过公网ip `http://47.100.121.250/vue-manage` 访问我的vue项目了！
+
+## 7-22
+
+### Nginx设置虚拟主机
+
+使用域名设置虚拟主机
+
+```nginx
+server {
+  #监听端口
+  listen 80;
+  #监听地址
+  server_name manage.garosy.top;
+  ...
+  }
+```
+
