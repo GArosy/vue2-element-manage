@@ -2562,6 +2562,11 @@ server {
   listen 80;
   #监听地址
   server_name manage.garosy.top;
+  location / {
+      # 配置根目录的地址是以 nginx 下的 html 文件夹为根目录来查找的
+      root html/vue-manage;
+      index index.html index.htm;
+    }
   ...
   }
 ```
