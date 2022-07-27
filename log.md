@@ -2552,22 +2552,43 @@ http
 
 ## 7-22
 
-### Nginx设置虚拟主机
+### Nginx设置虚拟主机配置二级域名
 
-使用域名设置虚拟主机
+使用基于域名的虚拟主机配置是比较流行的方式，可以在同一个IP上配置多个域名并且都通过80端口访问。这里使用二级域名来配置不同项目的访问：
+
+- 在云服务器控制台解析二级域名
+
+- nginx配置
+
+   这一步的要点在于在http配置内写**两个**server虚拟主机，每个主机监听端口相同但地址不同：
 
 ```nginx
-server {
+	server {
   #监听端口
   listen 80;
   #监听地址
-  server_name manage.garosy.top;
-  location / {
-      # 配置根目录的地址是以 nginx 下的 html 文件夹为根目录来查找的
-      root html/vue-manage;
-      index index.html index.htm;
-    }
+  server_name garosy.top;
   ...
   }
+
+  # vue-manage项目
+  server {
+    listen 80;
+    server_name manage.garosy.top;
+    location ^~ /vue-manage/ {
+      root html/vue-manage;
+      index index.html;
+    }
+  };
+
+  # js30项目
+  server {
+    listen 80;
+    server_name js30.garosy.top;
+    location ^~ /js30/ {
+      root html/js30;
+      index index.html;
+    }
+  };
 ```
 
