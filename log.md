@@ -2550,7 +2550,7 @@ http
 
 - 现在即可通过公网ip `http://47.100.121.250/vue-manage` 访问我的vue项目了！
 
-## 7-22
+## 7-28
 
 ### Nginx设置虚拟主机配置二级域名
 
@@ -2558,37 +2558,74 @@ http
 
 - 在云服务器控制台解析二级域名
 
+- **重要：更改 `vue.config.js` 的公共路径为根目录 `'/'`，重新打包至服务器，否则项目无法运行！**
+
 - nginx配置
 
-   这一步的要点在于在http配置内写**两个**server虚拟主机，每个主机监听端口相同但地址不同：
-
-```nginx
-	server {
-  #监听端口
-  listen 80;
-  #监听地址
-  server_name garosy.top;
-  ...
-  }
-
-  # vue-manage项目
-  server {
-    listen 80;
-    server_name manage.garosy.top;
-    location ^~ /vue-manage/ {
-      root html/vue-manage;
-      index index.html;
-    }
-  };
-
-  # js30项目
-  server {
-    listen 80;
-    server_name js30.garosy.top;
-    location ^~ /js30/ {
-      root html/js30;
-      index index.html;
-    }
-  };
-```
+   为了配置文件的可拓展性和维护方便，这里将不同项目的配置文件独立存放至`nginx/conf.d`文件夹中，再将其引入至主配置 `nginx.conf` 内的http模块中：
+   
+   ```nginx
+   http {
+   	##
+     # 引入子配置文件
+     ##
+     include /usr/local/webserver/nginx/conf.d/*.conf;
+   }
+   ```
+   
+    在 `conf.d` 文件夹中新建项目对应的配置文件，例如 `test.conf` ，部署监听地址、端口和对应目录：
+   
+   ```nginx
+   # test
+   server {
+     listen 80;
+     server_name test.garosy.top;
+     location / {
+       root html/test;
+       index index.html;
+     }
+   }
+   ```
+   
+   需要注意的是，如果项目使用了vue-router的history模式搭建，使用nginx的 `index` 指令配置页面会导致404。这是由于vue-router中使用的url仅仅是一系列路由，并不是文件的真实目录地址，所有的路由依赖于单页应用的 `index.html` 来加载。
+   
+   因此，我们需要使用nginx的 `try_files` 指令查找 `index.html`：
+   
+   ```nginx
+   # vue-manage项目
+   server {
+     listen 80;
+     server_name manage.garosy.top;
+     location / {
+       root html/vue-manage;
+       index index.html index.htm;
+       try_files 
+     }
+   }
+   ```
+   
+   > try_files语法规则：
+   >
+   > - `try_files [file] ... [uri]`	按指定的`[file]`顺序查找存在的文件，并使用第一个找到的文件进行请求处理。查找路径是按照给定的root或alias为根路径来查找的。如果给出的file都没有匹配到，则重新请求最后一个参数给定的uri，就是新的location匹配。
+   > - `try_files [file] ... = [code]` 	如果 `[code]` = 404 ，若给出的file都没有匹配到，则最后返回404响应码 
+   > - `$uri`	代表请求的文件
+   > - `$uri/`	代表请求的目录
+   > - 可应用于 server/location 段 
+   >
+   > 例如：
+   >
+   > ```nginx
+   > location /images/ {
+   >     root /opt/html/;
+   >     try_files $uri $uri/ /images/default.gif; 
+   > }
+   > ```
+   >
+   > 这段配置下，请求 `127.0.0.1/images/test.gif` 会依次查找
+   >
+   > 1. 文件 /opt/html/images/test.gif   
+   >
+   > 2. 文件夹 /opt/html/images/test.gif/下的index文件  
+   >
+   > 3. 请求 127.0.0.1/images/default.gif
 
