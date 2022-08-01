@@ -1,0 +1,23 @@
+.mall-manage {
+  margin-top: 20px;
+  height: 88vh;
+  .manage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .el-form-item {
+      margin: 0 0 0 10px;
+    }
+  }
+  .common-table {
+    height: calc(100% - 62px);
+    position: relative;
+    margin-top: 1rem;
+    background-color: #fff;
+    .pager {
+      position: absolute;
+      bottom: 1rem;
+      right: 0;
+    }
+  }
+}
