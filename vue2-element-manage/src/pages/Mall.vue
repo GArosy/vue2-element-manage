@@ -1,6 +1,6 @@
 <template>
   <div class="mall-manage">
-    <!-- 添加商品对话框 -->
+    <!-- 添加/编辑商品对话框 -->
     <el-dialog
       :title="operateType === 'add' ? '添加商品' : '更新商品'"
       :visible.sync="isShow"
@@ -36,8 +36,8 @@
       :tableLabel="tableLabel"
       :config="config"
       @changePage="getList()"
-      @edit="editUser"
-      @delete="deleteUser"
+      @edit="editGood"
+      @delete="deleteGood"
     >
     </common-table>
   </div>
@@ -110,5 +110,22 @@ export default {
       },
     };
   },
+  methods: {
+    // 提交商品表单
+    confirm() {
+      if (this.operateType === "edit") {
+        this.$http.post("/user/edit", this.operateForm).then((res) => {
+          // console.log(res);
+          this.isShow = false;
+          this.getList();
+        });
+      } else {
+        this.$http.post("/user/add", this.operateForm).then((res) => {
+          // console.log(res);
+          this.isShow = false;
+        });
+      }
+    },
+  }
 };
 </script>
