@@ -5,8 +5,6 @@
     background-color="#545c64"
     text-color="#fff"
     active-text-color="#ffd04b"
-    @open="handleOpen"
-    @close="handleClose"
     :collapse="isCollapse"
   >
     <h3>{{ isCollapse ? "后台" : "通用后台管理系统" }}</h3>
@@ -70,12 +68,12 @@ export default {
     };
   },
   methods: {
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath);
-    },
+    // handleOpen(key, keyPath) {
+      // console.log(key, keyPath);
+    // },
+    // handleClose(key, keyPath) {
+      // console.log(key, keyPath);
+    // },
     // 点击跳转
     clickMenu(item) {
       // console.log(this.$router);

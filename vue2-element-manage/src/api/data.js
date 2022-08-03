@@ -14,6 +14,14 @@ export const getUser = (params) => {
   });
 };
 
+export const getGoods = (params) => {
+  return axios.request({
+    url: "/mall/getGoods",
+    method: "GET",
+    params,
+  });
+};
+
 export const getMenu = (params) => {
   return axios.request({
     url: "/permission/getMenu",

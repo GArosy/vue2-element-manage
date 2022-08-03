@@ -1,17 +1,18 @@
 <template>
   <div class="common-table">
-    <el-table :data="tableData" height="75vh" stripe>
-      <!-- 表头 -->
+    <el-table :data="tableData" height="75vh" stripe v-fit-columns fit>
+      <!-- 数据列 -->
       <el-table-column
         v-for="item in tableLabel"
         :key="item.prop"
         :label="item.label"
         :width="item.width ? item.width : 125"
         show-overflow-tooltip
+        style="margin-left: 10px;"
       >
         <!-- 作用域插槽 -->
         <template v-slot:default="slotProps">
-          <span style="margin-left: 10px">{{ slotProps.row[item.prop] }}</span>
+          <span>{{ slotProps.row[item.prop] }}</span>
         </template>
       </el-table-column>
       <!-- 操作列 -->

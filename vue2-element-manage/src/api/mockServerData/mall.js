@@ -24,36 +24,36 @@ for (let i = 0; i < count; i++) {
   List.push(
     Mock.mock({
       // 随机生成GUID
-      id: Mock.Random.guid(),
+      id: Mock.Random.id(),
       // 随机生成商品名
       name: Mock.Random.cword(2, 6),
       // 随机生成价格
-      price: Mock.Random.integer(10, 10000),
+      price: Mock.Random.integer(10, 2000),
       // 随机生成数量
       amount: Mock.Random.integer(100,1000),
       // 随机生成类目
       type: Mock.Random.cword(2, 6),
       // 图片
       photo: '',
-      
-      "sex|0-1": 1,
+      // 随机生成一段描述
+      description: Mock.Random.csentence()
     })
   );
 }
 
 export default {
-  // 获取用户列表数据
+  // 获取商品列表数据
   getGoodsList: (config) => {
     // 解构赋值经 param2Obj 解析后的 name page limit
     // console.log(config);
     const { name, page = 1, limit = 20 } = param2Obj(config.url);
     // console.log(`name:${name}`, `page:${page}`, `limit:${limit}`);
     // 过滤空数据
-    const mockList = List.filter((user) => {
+    const mockList = List.filter((good) => {
       if (
         name &&
-        user.name.indexOf(name) === -1 &&
-        user.addr.indexOf(name) === -1
+        good.name.indexOf(name) === -1 &&
+        good.addr.indexOf(name) === -1
       )
         return false;
       return true;
@@ -67,11 +67,11 @@ export default {
       list: pageList,
     };
   },
-  // 增加用户
+  // 增加商品
   createGood: (config) => {
     // console.log(config);
     const newItem = JSON.parse(config.body);
-    newItem.id = Mock.Random.guid();
+    newItem.id = Mock.Random.id();
     List.unshift(newItem);
     console.log("新增项:", newItem);
     return {
@@ -81,7 +81,7 @@ export default {
       },
     };
   },
-  // 删除用户
+  // 删除商品
   deleteGood: (config) => {
     const { id } = param2Obj(config.url);
     if (!id) {
@@ -97,17 +97,18 @@ export default {
       };
     }
   },
-  // 编辑用户
+  // 编辑商品
   updateGood: (config) => {
-    const { id, name, addr, age, birth, sex } = JSON.parse(config.body);
-    const sexNum = parseInt(sex);
+    const { id, name, price, amount, type, photo, description } = JSON.parse(config.body);
     List.some((u) => {
       if (u.id === id) {
+        u.id = id;
         u.name = name;
-        u.addr = addr;
-        u.age = age;
-        u.birth = birth;
-        u.sex = sexNum;
+        u.price = price;
+        u.amount = amount;
+        u.type = type;
+        u.photo = photo;
+        u.description = description;
         return true;
       }
     });
