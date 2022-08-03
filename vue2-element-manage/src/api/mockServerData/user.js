@@ -18,9 +18,13 @@ const param2Obj = function (url) {
 
 let List = [];
 const count = 200;
+const currentYear = new Date().getFullYear();
 
 // 循环产生200个随机用户信息
 for (let i = 0; i < count; i++) {
+  // 生成日期字符串，默认值为 yyyy-MM-dd
+  const birth = Mock.Random.date();
+  const age = currentYear - birth.slice(0, 4);
   List.push(
     Mock.mock({
       // 随机生成GUID
@@ -30,9 +34,8 @@ for (let i = 0; i < count; i++) {
       // 随机生成一个（中国）县，true表示生成所属的省、市
       addr: Mock.Random.county(true),
       // 生成一个大于等于 18、小于等于 60 的整数，属性值 number 只是用来确定类型
-      "age|18-60": 1,
-      // 生成日期字符串，默认值为 yyyy-MM-dd
-      birth: Mock.Random.date(),
+      age,
+      birth,
       "sex|0-1": 1,
     })
   );
@@ -70,7 +73,7 @@ export default {
     const newItem = JSON.parse(config.body);
     newItem.id = Mock.Random.guid();
     List.unshift(newItem);
-    console.log('新增项:',newItem);
+    console.log("新增项:", newItem);
     return {
       code: 20000,
       data: {
