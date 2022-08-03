@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>其它页面1</h1> 
+        <h1>UserCenter</h1> 
     </div>
 </template>
 
