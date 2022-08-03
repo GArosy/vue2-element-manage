@@ -2629,3 +2629,8 @@ http
    >
    > 3. 请求 127.0.0.1/images/default.gif
 
+
+
+## 8-3
+
+- 为实现列表宽度自适应，引入 `v-fit-columns` 插件，在el-table标签后加`v-fit-columns`即可。
