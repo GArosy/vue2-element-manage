@@ -24,6 +24,7 @@ const currentYear = new Date().getFullYear();
 for (let i = 0; i < count; i++) {
   // 生成日期字符串，默认值为 yyyy-MM-dd
   const birth = Mock.Random.date();
+  // 当前年份 - 出生年份（随机数据）
   const age = currentYear - birth.slice(0, 4);
   List.push(
     Mock.mock({

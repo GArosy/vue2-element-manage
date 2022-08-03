@@ -1,6 +1,6 @@
 import Mock from "mockjs";
 export default {
-  getMenu: config => {
+  getMenu: (config) => {
     // 解析传入的json字符串，解构为用户名和密码
     const { userName, password } = JSON.parse(config.body);
     // 判断用户是否存在
@@ -22,33 +22,33 @@ export default {
               path: "/mall",
               name: "mall",
               label: "商品管理",
-              icon: "video-play",
+              icon: "s-goods",
               url: "Mall",
             },
             {
               path: "/user",
               name: "user",
               label: "用户管理",
-              icon: "user",
+              icon: "user-solid",
               url: "User",
             },
             {
               label: "其他",
-              icon: "location",
+              icon: "info",
               children: [
                 {
-                  path: "/page1",
-                  name: "page1",
-                  label: "页面1",
-                  icon: "setting",
-                  url: "OtherPage1",
+                  path: "/usercenter",
+                  name: "usercenter",
+                  label: "个人中心",
+                  icon: "s-custom",
+                  url: "UserCenter",
                 },
                 {
-                  path: "/page2",
-                  name: "page2",
-                  label: "页面2",
-                  icon: "setting",
-                  url: "OtherPage2",
+                  path: "/introduction",
+                  name: "introduction",
+                  label: "项目说明",
+                  icon: "question",
+                  url: "Information",
                 },
               ],
             },
@@ -73,8 +73,28 @@ export default {
               path: "/mall",
               name: "mall",
               label: "商品管理",
-              icon: "video-play",
+              icon: "s-goods",
               url: "Mall",
+            },
+            {
+              label: "其他",
+              icon: "info",
+              children: [
+                {
+                  path: "/usercenter",
+                  name: "usercenter",
+                  label: "个人中心",
+                  icon: "s-custom",
+                  url: "UserCenter",
+                },
+                {
+                  path: "/introduction",
+                  name: "introduction",
+                  label: "项目说明",
+                  icon: "question",
+                  url: "Information",
+                },
+              ],
             },
           ],
           token: Mock.Random.guid(),

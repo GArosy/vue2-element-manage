@@ -142,6 +142,7 @@ export default {
         this.$http.post("/user/add", this.operateForm).then((res) => {
           // console.log(res);
           this.isShow = false;
+          this.getList();
         });
       }
     },

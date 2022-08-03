@@ -32,16 +32,16 @@ const routes = [
         component: () => import("@/pages/Mall"),
       },
       {
-        path: "/page1",
-        name: "page1",
-        label: "其它1",
-        component: () => import("@/pages/OtherPage1"),
+        path: "/usercenter",
+        name: "usercenter",
+        label: "个人中心",
+        component: () => import("@/pages/UserCenter"),
       },
       {
-        path: "/page2",
-        name: "page2",
-        label: "其它2",
-        component: () => import("@/pages/OtherPage2"),
+        path: "/introduction",
+        name: "introduction", 
+        label: "项目说明",
+        component: () => import("@/pages/Introduction"),
       },
     ],
   },
@@ -56,7 +56,7 @@ const routes = [
 // 创建路由实例并传递 `routes` 配置
 const router = new VueRouter({
   mode: "history",
-  base: "/vue-manage/", // 配置 nginx 访问结构
+  base: "/", // 配置 nginx 访问结构
   routes, // `routes: routes` 的缩写
 });
 
