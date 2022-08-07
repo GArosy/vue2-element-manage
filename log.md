@@ -2634,3 +2634,94 @@ http
 ## 8-3
 
 - 为实现列表宽度自适应，引入 `v-fit-columns` 插件，在el-table标签后加`v-fit-columns`即可。
+
+## 8-5
+
+### 部署express框架
+
+- 在云服务器安装nodejs
+
+  ```bash
+  cd /usr/local/node
+  
+  wget https://nodejs.org/dist/v16.16.0/node-v16.16.0-linux-x64.tar.xz
+  
+  tar -xvf node-v16.16.0-linux-x64.tar.xz
+  
+  # 重命名为 nodejs
+  mv node-v16.16.0-linux-x64 nodejs
+  
+  # 为node和npm命令建立软链接，让npm和node命令全局生效
+  ln -s /usr/local/node/nodejs/bin/node /usr/local/bin/
+  ln -s /usr/local/node/nodejs/bin/npm /usr/local/bin/
+  
+  ```
+
+- 全局安装express框架和其生成器
+
+  ```bash
+  npm install -g express
+  npm install -g express-generator
+  
+  ln -s /usr/local/node/nodejs/bin/express /usr/local/bin/
+  
+  express --version
+  ```
+
+- 在node-manage库中新建js文件 `index.js` 
+
+  ```js
+  // index.js
+  
+  // 引入express，创建express应用
+  const express = require("express");
+  const app = express();
+  
+  // 路由定义，新建一个简单的get请求接口
+  app.get("/api/get", (req, res) => {
+    // 返回的是json数据
+    res.json({
+      method: 'GET',
+      data: [{
+        name: 'gao arosy',
+        age: 24
+      }]
+    })
+  });
+  ```
+
+- 使用express-generator生成express项目
+
+  ```bash
+  # 创建项目
+  express node-manage
+  # 安装依赖
+  cnpm install
+  #运行项目
+  DEBUG=node-manage:* npm start
+  ```
+
+  输入 `curl http://localhost:3000` 即可看到返回了express的实例页
+
+  ```html
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>Express</title>
+      <link rel="stylesheet" href="/stylesheets/style.css">
+    </head>
+    <body>
+      <h1>Express</h1>
+      <p>Welcome to Express</p>
+    </body>
+  </html>
+  ```
+
+  在bash中输入 `netstat -n` 可见3000端口处于listen状态，输入 `lsof -i` 查看进程情况
+
+## 8-7
+
+- 因为node进程在kill之后会自动重启，3000端口永远会处于占用状态
+
+  其原因是nodejs能够异步处理任务，所以可以在出现错误逻辑后kill掉主进程然后继续执行后面的任务。
+
