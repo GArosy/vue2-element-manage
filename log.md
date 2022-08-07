@@ -2668,18 +2668,17 @@ http
   express --version
   ```
 
-- 在node-manage库中新建js文件 `index.js` 
+- 验证：在xshell中新建js文件 `index.js` 
 
   ```js
-  // index.js
-  
-  // 引入express，创建express应用
+  // 引入express
   const express = require("express");
   const app = express();
   
-  // 路由定义，新建一个简单的get请求接口
-  app.get("/api/get", (req, res) => {
+  // 新建一个简单的get请求接口
+  app.get("/api/get", (rec, res) => {
     // 返回的是json数据
+    res.send('Hello express')
     res.json({
       method: 'GET',
       data: [{
@@ -2688,7 +2687,21 @@ http
       }]
     })
   });
+  
+  const server = app.listen(8081, ()=> {
+    const host = server.address().address;
+    const port = server.address().port;
+    console.log(`应用实例，访问地址为 http://${host}:${port}`);
+  })
   ```
+
+  在xshell中输入
+
+  ```bash
+  node index.js
+  ```
+
+  在浏览器中输入公网ip：`47.100.121.250:8081/api/get` 访问，显示：`应用实例，访问地址为 http://:::8081` 即验证成功，ctrl+c退出即可。
 
 - 使用express-generator生成express项目
 
@@ -2701,7 +2714,89 @@ http
   DEBUG=node-manage:* npm start
   ```
 
-  输入 `curl http://localhost:3000` 即可看到返回了express的实例页
+  创建完成后，使用 `node ./bin/www` 或 `npm start ./bin/www` 即可启动项目，但随bash关闭，项目也会停止。
+
+  这时可使用pm2或forever等进程管理工具解决，这里使用pm2：
+  
+- 安装pm2进程管理工具
+
+  ```bash
+  cnpm install pm2 -g
+  
+  ln -s /usr/local/node/nodejs/lib/node_modules/pm2/bin/pm2 /usr/local/bin/
+  
+  pm2 -v
+  ```
+
+- 使用pm2启动node项目，**可以在xshell关闭后保持服务继续运行**
+
+  ```bash
+  cd /root/node-manage
+  
+  pm2 start ./bin/www
+  ```
+
+  此时的node进程甚至在kill之后也会自动重启，我们永远无法绕过pm2指令彻底关闭node进程，**3000端口永远会处于占用状态！**若要停止项目，输入：
+
+  ```
+  pm2 stop all
+  ```
+
+  > 附常用pm2指令：
+  >
+  > ```bash
+  > $ pm2 start app.js # 启动app.js应用程序
+  > 
+  > $ pm2 start app.js –name=”api” # 启动应用程序并命名为 “api”
+  > 
+  > $ pm2 start app.js –watch # 当文件变化时自动重启应用
+  > 
+  > $ pm2 start script.sh # 启动 bash 脚本
+  > 
+  > $ pm2 list # 列表 PM2 启动的所有的应用程序
+  > 
+  > $ pm2 monit # 显示每个应用程序的CPU和内存占用情况
+  > 
+  > $ pm2 show [app-name] # 显示应用程序的所有信息
+  > 
+  > $ pm2 logs # 显示所有应用程序的日志
+  > 
+  > $ pm2 logs [app-name] # 显示指定应用程序的日志
+  > 
+  > $ pm2 stop all # 停止所有的应用程序
+  > 
+  > $ pm2 stop 0 # 停止 id为 0的指定应用程序
+  > 
+  > $ pm2 restart all # 重启所有应用
+  > 
+  > $ pm2 reload all # 重启 cluster mode下的所有应用
+  > 
+  > $ pm2 gracefulReload all # Graceful reload all apps in cluster mode
+  > 
+  > $ pm2 delete all # 关闭并删除所有应用
+  > 
+  > $ pm2 delete 0 # 删除指定应用 id 0
+  > 
+  > $ pm2 scale api 10 # 把名字叫api的应用扩展到10个实例
+  > 
+  > $ pm2 reset [app-name] # 重置重启数量
+  > 
+  > $ pm2 startup # 创建开机自启动命令
+  > 
+  > $ pm2 save # 保存当前应用列表
+  > 
+  > $ pm2 resurrect # 重新加载保存的应用列表
+  > 
+  > $ pm2 update # Save processes, kill PM2 and restore processes
+  > 
+  > $ pm2 generate # Generate a sample json configuration file
+  > ```
+  >
+  > 
+
+- 验证
+
+  输入 `curl http://localhost:3000` ，或在浏览器输入公网ip：`47.100.121.250:3000` 访问即可看到返回的express的欢迎页：
 
   ```html
   <!DOCTYPE html>
@@ -2717,11 +2812,6 @@ http
   </html>
   ```
 
-  在bash中输入 `netstat -n` 可见3000端口处于listen状态，输入 `lsof -i` 查看进程情况
+  在bash中输入 `netstat -n` 可见3000端口处于listen状态，输入 `lsof -i` 可查看进程PID。
 
-## 8-7
-
-- 因为node进程在kill之后会自动重启，3000端口永远会处于占用状态
-
-  其原因是nodejs能够异步处理任务，所以可以在出现错误逻辑后kill掉主进程然后继续执行后面的任务。
-
+## 8-8
