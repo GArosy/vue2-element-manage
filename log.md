@@ -1417,16 +1417,18 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
      },
      ```
 
+  DEBUG
+
   ==注意==：element-ui 2.15.9 版本在vue中会遇到针对 el-date-picker 的警告问题：
 
   > Avoid mutating a prop directly since the value will be overwritten whenever the parent component re-renders. Instead, use a data or computed property based on the prop's value. Prop being mutated: "placement"
 
   问题出在了element-ui的 PR [#21806](https://github.com/ElemeFE/element/pull/21806) 增加了 props placement 用来适应位置，但是之前的代码 created 时有给 placement 赋值,导致报错。可修改element-ui版本到 2.15.8解决：
-
+  
   ```
-  yarn upgrade element-ui@2.15.8
+yarn upgrade element-ui@2.15.8
   ```
-
+  
   至此，点击新增按钮后填写表单并提交可在控制台看到打印的数据，表明接口已在正常运作。
 
 ## 7-1
@@ -2190,7 +2192,7 @@ func是`api/mockServerData/home.js`中的`getStaticalData`函数，它返回一�
   
   ```
 
-- 出现的问题：
+- DEBUG：
 
   - 点击登录后axios发送含有用户名和密码的post请求，但后台`getMenu`接口获取不到请求体body
 
@@ -2637,7 +2639,7 @@ http
 
 ## 8-5
 
-### 部署express框架
+### 部署Express框架
 
 - 在云服务器安装nodejs
 
@@ -2815,3 +2817,234 @@ http
   在bash中输入 `netstat -n` 可见3000端口处于listen状态，输入 `lsof -i` 可查看进程PID。
 
 ## 8-8
+
+### Express连接MySQL
+
+- 安装mysql（YUM方式）
+
+  - 检查是否已安装mysql
+
+    ```
+    rpm -qa | grep mysql
+    ```
+
+    返回为空，表示没有安装
+
+    ```
+    find / -name mysql
+    ```
+
+    使用 `rm -rf` 删除找出的文件
+
+    > 从CentOS 7开始，MariaDB成为Yum源中默认的数据库安装包。也就是说在CentOS 7及以上的系统中使用yum安装MySQL默认安装的会是MariaDB（MySQL的一个分支）。如果想安装官方MySQL版本，需要使用MySQL提供的Yum源。
+    >
+    > ```
+    > yum install mysql
+    > ```
+    >
+    >  这里执行安装命令是无效的，因为centos-7默认是Mariadb，所以执行以下命令只是更新Mariadb数据库 
+
+  - 下载安装包
+
+    在mysql社区找到对应版本的yum源，下载安装包并安装
+
+    >  [MySQL :: Download MySQL Yum Repository](https://dev.mysql.com/downloads/repo/yum/) 
+
+    ```shell
+    wget https://dev.mysql.com/get/mysql80-community-release-el8-4.noarch.rpm
+    
+    yum install mysql80-community-release-el8-4.noarch.rpm
+    ```
+
+    出现 Complete 字样表示安装成功
+
+  - 安装mysql命令
+
+    ```
+    yum install mysql-community-server
+    ```
+
+    如果出现`No match for argument: mysql-community-server`，可先执行
+
+    ```
+    yum module disable mysql
+    ```
+
+    多次输入 Y 确认，直到出现complete字样
+
+- 启动mysql
+
+  ```bash
+  service mysqld start
+  ```
+
+  查看mysql状态
+
+  ```bash
+  service mysqld status
+  ```
+
+  返回
+
+  ```bash
+  ● mysqld.service - MySQL Server
+     Loaded: loaded (/usr/lib/systemd/system/mysqld.service; enabled; vendor preset: disabled)
+     Active: active (running) since Mon 2022-08-08 16:58:50 CST; 2s ago
+       Docs: man:mysqld(8)
+             http://dev.mysql.com/doc/refman/en/using-systemd.html
+    Process: 115810 ExecStartPre=/usr/bin/mysqld_pre_systemd (code=exited, status=0/SUCCESS)
+   Main PID: 115837 (mysqld)
+     Status: "Server is operational"
+      Tasks: 39 (limit: 10882)
+     Memory: 411.9M
+     CGroup: /system.slice/mysqld.service
+             └─115837 /usr/sbin/mysqld
+  
+  Aug 08 16:58:47 iZuf6dg5nxsd5q9qj3v7x8Z systemd[1]: Starting MySQL Server...
+  Aug 08 16:58:50 iZuf6dg5nxsd5q9qj3v7x8Z systemd[1]: Started MySQL Server.
+  ```
+
+  启动成功。此时MySQL已经开始正常运行，不过要想进入MySQL还得先找出此时root用户的密码。
+
+- 进入数据库
+
+  显示mysql的随机密码：
+
+  ```bash
+  grep "password" /var/log/mysqld.log
+  ```
+
+  返回
+
+  ```bash
+  2022-08-08T08:52:04.606419Z 6 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: vhie:ynmf8_D
+  
+  ```
+
+  `vhie:ynmf8_D` 即初始密码。可使用它进入数据库。
+
+  ```
+  mysql -u root -p
+  ```
+
+  粘贴密码，回车，返回 Welcome to the MySQL monitor 字样即成功进入
+
+  - 修改密码
+
+    - 方法一：
+
+      `mysqladmin -u root -p [新密码]` 
+
+    - 方法二：
+
+      进入数据库，输入
+
+      ```mysql
+      ALTER USER 'root'@'localhost' IDENTIFIED BY '[newPassword]';
+      ```
+
+      注意在语句结束输入分号，新密码需要包含大小写字母、数字和特殊符号。
+
+- 开放远程访问
+
+  - mysql默认使用3306端口，需要在阿里云控制台开放3306端口。
+
+  - 使用navicat连接
+
+    >  [Navicat Premium 16 下载与安装破解教程](https://learnku.com/articles/67706) 
+
+    这里出现1130错误，经查是无法给远程连接的用户权限问题。
+
+    需要更改 “mysql” 数据库里的 “user” 表里的 “host” 项，将”localhost”改称'%'。
+
+  - 查看库的用户权限表
+
+    进入数据库，查看可进行连接访问的主机/IP名称 
+
+    ```mysql
+    use mysql;
+    select host, user, authentication_string, plugin from user;
+    ```
+
+    可以看到，用户root对应的主机是localhost，而不是%，所以不能远程连接。
+
+    这里以通配符%的内容增加主机/IP地址，使**任意ip**都可访问数据库：
+
+    ```mysql
+    update user set host = '%' where user ='root';
+    ```
+
+    再刷新MySQL的系统权限相关表：
+
+    ```mysql
+    flush privileges;
+    ```
+
+    再次查看用户权限表可见用户root对应的主机变成了%
+
+  - navicat报2059错误
+
+    MySQL新版本（8以上版本）的用户登录账户加密方式是【caching_sha2_password】，低版本的Navicat不支持这种用户登录账户加密方式。需要修改加密方式：
+
+    ```mysql
+    ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '[密码]';
+    ```
+
+    建议做法是使用新版本的Navicat工具。
+
+  
+
+- 将node-manage项目与express连接
+
+  - 安装mysql依赖
+
+    ```
+    cnpm install mysql --save
+    ```
+
+  - 创建db
+
+    打开express脚手架项目，根目录创建db文件夹，在其中创建connect文件夹，文件夹下两个js文件为db.js与mysql.js
+
+     mysql.js文件为访问mysql的配置信息
+
+    ```js
+    // mysql.js
+    var connection = {};
+    connection.mysql={
+        host:"127.0.0.1",  //mysql的安装主机地址
+        user:"root",        //访问mysql的用户名
+        password:"123456789", // 访问mysql的密码
+        database:"logo"    //访问mysql的数据库名
+    }
+    module.exports = connection
+    ```
+
+     db.js文件创建连接mysql 
+
+    ```
+    // db.js
+    const express = require('express');
+    const $mysql = require('mysql');
+    const sql = require('./mysql.js');
+    const $sql = $mysql.createConnection(sql.mysql)
+    
+    $sql.connect();
+    
+    module.exports = $sql;
+    ```
+
+    
+
+> //访问整个表的信息
+> select  * from goods
+> //带查询条件访问表
+> select * from goods where name = '{name}'
+> //添加记录
+> insert into userinfo values('​{****}','${***}','${***}')`
+> //删除整个表的数据
+> delete from goods
+> //带条件删除
+> delete from goods where id=4
+> //修改语句
+> update 表名 set 字段名=‘新内容’ + where条件
