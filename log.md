@@ -3214,6 +3214,144 @@ http
   
   ```
 
+
+
+## 8-10
+
+- 安装nodemon，监控 node.js 源代码的任何变化和自动重启服务器
+
+  ```
+  cnpm install nodemon -g
+  ```
+
+  使用nodemon启动项目
+
+  ```
+  nodemon app.js
+  ```
+
+- 安装winston日志，打印日志文件
+
+  > 参考 
+  >
+  >  [Node.js 日志之winston使用指南 - 掘金 (juejin.cn)](https://juejin.cn/post/7018169629176496158) 
+  >
+  >  [(21条消息) winston日志框架_kgduu的博客-CSDN博客_winston 日志](https://blog.csdn.net/xiexingshishu/article/details/117196560) 
+
+  ```
+  cnpm install winston
+  ```
+
+   在项目的utils目录添加一个配置打印日志格式的文件 logger.js，和存放日志的文件夹 logs
+
+  ```js
+  const { createLogger, format, transports } = require("winston");
+  const fs = require("fs");
+  const path = require("path");
+  
+  const env = process.env.NODE_ENV || "development";
+  
+  // 调用 winston 库中的 createLogger 函数来初始化记录器
+  module.exports = createLogger({
+    /**
+     * 在 transports 文件传输器对象中，可以提供一个文件名 filename 将日志存储在文件中。
+     * 默认情况下，日志记录未格式化，并打印为带有两个参数的 JSON 字符串、日志消息和等级。
+     */
+    format: format.combine(
+      format.label({ label: path.basename(process.mainModule.filename) }),
+      format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" })
+    ),
+    transports: [
+      new transports.Console({
+        format: format.combine(
+          format.colorize(),
+          format.printf(
+            (info) =>
+              `${info.timestamp} ${info.level} [${info.label}]: ${info.message}`
+          )
+        ),
+      }),
+      new transports.File({
+        filename: "logs/serverInfo.log",
+        // 日志级别，只在 console.info 方式下使用 winston
+        level: "info",
+        format: format.combine(
+          format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+          format.align(),
+          format.printf((info) =>
+            info.level === "info"
+              ? `${info.timestamp} ${info.level} [${info.label}]: ${info.message}`
+              : ''
+          )
+        ),
+      }),
+      // winston 允许设置多种 transport
+      new transports.File({
+        filename: "logs/serverError.log",
+        level: "error",
+        format: format.combine(
+          format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+          format.align(),
+          format.printf(
+            (err) =>
+              `${err.timestamp} ${err.level} [${err.label}]: ${err.message}`
+          )
+        ),
+      }),
+    ],
+  });
+  
+  ```
+
+- 在express入口文件app.js中使用winston
+
+  ```js
+  // ...
+  const logger = require("./utils/logger");
+  
+  app.get("/", (req, res) => {
+    res.send("Hello World!");
+    logger.info("Server Sent A Hello World!");
+  });
+  //...
+  
+  // 捕获 500 错误
+  app.use((err, req, res, next) => {
+    res.status(500).send("500 Server Error");
+    logger.error(
+      `${err.status || 500} - ${res.statusMessage} - ${err.message} - ${
+        req.originalUrl
+      } - ${req.method} - ${req.ip}`
+    );
+  });
+  
+  // 中间件捕获 404 错误，并定向到错误处理
+  app.use((req, res, next) => {
+    next(createError(404));
+  });
+  
+  // error handler
+  app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get("env") === "development" ? err : {};
+  
+    // render the error page
+    res.status(err.status || 500);
+    res.send("404 Not Found");
+    logger.error(
+      `${res.statusMessage} - ${req.originalUrl} - ${req.method} - ${req.ip} : ${err.message}`
+    );
+  });
+  
+  // 监听3000端口
+  app.listen(port, () => {
+    // console.log(`Server started and running on http://${host}:${port}`);
+    logger.info(`Server started and running on http://${host}:${port}`);
+  });
+  
+  ```
+
   
 
 
