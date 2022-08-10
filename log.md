@@ -2992,59 +2992,229 @@ http
 
     建议做法是使用新版本的Navicat工具。
 
+    ==使用express连接数据库如出现1251错误，也可使用此方法==
+
   
 
-- 将node-manage项目与express连接
+- 将示例项目express-mysql与express连接
 
-  - 安装mysql依赖
+  - 使用navicat远程连接至数据库，新建库test
 
+  - 创建express-mysql项目
+
+    ```bash
+    npm init
+    
+    npm install mysql
+    npm install express
     ```
-    cnpm install mysql --save
-    ```
 
-  - 创建db
+  - 新建express主文件app.js
 
-    打开express脚手架项目，根目录创建db文件夹，在其中创建connect文件夹，文件夹下两个js文件为db.js与mysql.js
-
-     mysql.js文件为访问mysql的配置信息
+    引入模块，创建express和mysql实例，监听3000端口
 
     ```js
-    // mysql.js
-    var connection = {};
-    connection.mysql={
-        host:"127.0.0.1",  //mysql的安装主机地址
-        user:"root",        //访问mysql的用户名
-        password:"123456789", // 访问mysql的密码
-        database:"logo"    //访问mysql的数据库名
+    // app.js
+    const mysql = require('mysql')
+    const express = require('express')
+    const app = express()
+    const port = 3000
+    
+    // 创建一个sql实例，加入配置
+    const connection = mysql.createConnection({      //创建mysql实例
+    	host: '47.100.121.250',    // 连接的sql地址,外网地址
+      user: 'root',  // 用户名
+      password: 'xxxxxx', // 数据库密码
+      database: 'test'  // 选择的库
+    });
+    // 连接数据库
+    connection.connect();
+    
+    // 在接口中使用数据库的数据
+    app.get('/', (req, res) => {
+      res.send('Hello World!')
+    })
+    
+    app.get('/api/get', (req, res) => {
+      /* 使用 connection.query 来执行 sql 语句 */
+      // 第一个参数为 sql 语句，可以透过 js 自由组合
+      // 第二个参数为回调函数，err 表示查询异常、第二个参数则为查询结果（这里的查询结果为多个用户行）
+      connection.query('SELECT * FROM test', (err,result) => {
+        if (err) {
+          res.send('query error');
+          return
+        } else {
+          // 将 MySQL 查询结果作为路由返回值，这里返回的是json类型的数据
+          res.json({
+          	method: 'GET',
+            data: result
+          })
+        }
+      })
+    })
+    
+    // 监听3000端口
+    app.listen(port, () => {
+      console.log(`Example app listening on port ${port}`)
+    })
+    
+    ```
+
+  - 启动项目
+
+    ```bash
+    node app.js
+    ```
+
+    使用浏览器访问 47.100.121.250:3000/api/get，返回json数据 `{"method":"GET","data":[{"1":"a","2":"b","3":"c"}]}`，express与mysql连接成功！
+
+    
+
+  > mysql常用语句
+  >
+  > //访问整个表的信息
+  > select  * from goods
+  > //带查询条件访问表
+  > select * from goods where name = '{name}'
+  > //添加记录
+  > insert into userinfo values('{****}','${***}','${***}')`
+  > //删除整个表的数据
+  > delete from goods
+  > //带条件删除
+  > delete from goods where id=4
+  > //修改语句
+  > update 表名 set 字段名=‘新内容’ + where条件
+
+  
+
+  config.js -- 启动配置
+
+  ```js
+  // config.js
+  module.exports = {
+    port: 3000, // express 服务启动端口
+    /* 数据库相关配置 */
+    db: {
+      host: "47.100.121.250", // 主机名
+      port: 3306, // MySQL 默认端口为 3306
+      user: "root", // 使用 root 用户登入 MySQL
+      password: "xxx",  // MySQL 密码
+      database: "test", // 指定使用的数据库
     }
-    module.exports = connection
-    ```
+  };
+  ```
 
-     db.js文件创建连接mysql 
+   db.js -- 创建数据库实例连接
 
-    ```
-    // db.js
-    const express = require('express');
-    const $mysql = require('mysql');
-    const sql = require('./mysql.js');
-    const $sql = $mysql.createConnection(sql.mysql)
-    
-    $sql.connect();
-    
-    module.exports = $sql;
-    ```
+  ```js
+  // db.js
+  // 建立Mysql连接并导出
+  const express = require('express'); // 引入express
+  const config = require('./config'); // 获取配置信息
+  const $mysql = require('mysql');    // 引入mysql 
+  module.exports = $mysql.createConnection(config);  // mysql.createConnection 方法创建连接实例
+  ```
 
-    
+  
 
-> //访问整个表的信息
-> select  * from goods
-> //带查询条件访问表
-> select * from goods where name = '{name}'
-> //添加记录
-> insert into userinfo values('​{****}','${***}','${***}')`
-> //删除整个表的数据
-> delete from goods
-> //带条件删除
-> delete from goods where id=4
-> //修改语句
-> update 表名 set 字段名=‘新内容’ + where条件
+
+
+## 8-9
+
+### 封装sql
+
+为方便使用路由进行多模块开发，这里将配置项和连接数据库的方法独立封装起来：
+
+- 新建db目录，新建config.js 和 mysql.js
+
+- 新建config.js，用于存放数据库配置项
+
+  ```js
+  module.exports = {
+    host: "47.100.121.250", // 连接的sql地址,外网地址
+    user: "root", // 用户名
+    password: "Wxr02070.", // 数据库密码
+    database: "test", // 选择的库
+  };
+  ```
+
+- 新建mysql.js，用于创建mysql实例，并暴露连接数据库的方法
+
+  ```js
+  const mysql = require("mysql");
+  const config = require("./config");
+  
+  module.exports = {
+    queryDB(sql, params, callback) {
+      // 每次使用的时候需要创建链接，数据操作完成之后要关闭连接
+      const connection = mysql.createConnection(config); // 创建mysql连接实例
+      connection.connect((err) => {
+        if (err) {
+          console.log("数据库链接失败");
+          throw err;
+        }
+  
+        // 开始数据操作
+        /* 使用 connection.query 来执行 sql 语句 */
+        // 第一个参数为 sql 语句，可以透过 js 自由组合
+        // 第二个参数为回调函数，err 表示查询异常、第二个参数则为查询结果（这里的查询结果为多个用户行）
+        connection.query(sql, params, (err, results, fields) => {
+          if (err) {
+            console.log("数据操作失败");
+            throw err;
+          }
+          callback && callback(results, fields); // results作为数据操作后的结果，fields作为数据库连接的一些字段
+          // 停止链接数据库
+          connection.end((err) => {
+            if (err) {
+              console.log("关闭数据库连接失败");
+              throw err;
+            }
+          });
+        });
+      });
+    },
+  };
+  ```
+
+- 修改app.js
+
+  这时就能够简化express的主文件，使它专注于路由接口和处理函数了：
+
+  ```js
+  // app.js
+  const express = require('express');
+  const db = require("./db/mysql");
+  const app = express();
+  const port = 3000;
+  
+  // 在接口中使用数据库的数据
+  app.get("/", (req, res) => {
+    res.send("Hello World!");
+  });
+  
+  app.get("/api/get", (req, res) => {
+    db.queryDB("SELECT * FROM test", (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      // 将 MySQL 查询结果作为路由返回值，这里返回的是json类型的数据
+      res.json({
+        method: "GET",
+        data: result,
+      });
+    });
+  });
+  
+  // 监听3000端口
+  app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`);
+  });
+  
+  ```
+
+  
+
+
+
