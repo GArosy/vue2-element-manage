@@ -3303,7 +3303,7 @@ http
   
   ```
 
-- 在express入口文件app.js中使用winston
+  在express入口文件app.js中使用winston
 
   ```js
   // ...
@@ -3352,7 +3352,50 @@ http
   
   ```
 
+
+
+- 使用postMan接口测试工具
+
+  >  [Postman 汉化(Postman中文版) - 腾讯云开发者社区-腾讯云 (tencent.com)](https://cloud.tencent.com/developer/article/1814966) 
+
+
+
+
+
+## 8-11
+
+### 使用express路由
+
+为方便模块化开发，利用 `express.Router()` 快速路由器将路由文件独立出来
+
+- 新建routers文件夹，新建路由模块user.js
+
+  ```js
+  const express = require("express");
+  // 使用快速路由器Router()
+  const router = express.Router();
+  const logger = require("../utils/logger");
   
+  router.all("/", (req, res) => {
+    res.send("User Background");
+    logger.info(
+      `[${req.method}-${res.statusMessage}-${req.originalUrl}-${req.ip}] Server Sent User-Background Response`
+    );
+  });
+  
+  // 导出路由
+  module.exports = router;
+  ```
 
+- 在app.js中挂载路由模块
 
+  ```js
+  // ...
+  const user = require("./routers/user");
+  
+  // ...
+  app.use("/user", user);
+  ```
+
+- 以`/user`为前缀的url都会由此模块加载。访问 `http://127.0.0.1:3000/user`
 
