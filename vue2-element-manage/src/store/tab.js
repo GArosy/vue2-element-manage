@@ -4,15 +4,6 @@ export default {
   state: {
     isCollapse: false,
     iconFold: "el-icon-s-fold",
-    tabsList: [
-      {
-        path: "/home",
-        name: "home",
-        label: "首页",
-        icon: "home",
-      },
-    ],
-    currentMenu: null,
     menu: [],
   },
   // 定义方法
@@ -23,23 +14,6 @@ export default {
       state.isCollapse
         ? (state.iconFold = "el-icon-s-unfold")
         : (state.iconFold = "el-icon-s-fold");
-    },
-    // 选择面包屑
-    selectMenu(state, val) {
-      if (val.name !== "home") {
-        //
-        state.currentMenu = val;
-        // 查找tabsList中是否已存在传入的name
-        const result = state.tabsList.findIndex(
-          (item) => item.name === val.name
-        );
-        if (result === -1) {
-          // 如果不存在val.name，则添加
-          state.tabsList.push(val);
-        }
-      } else {
-        state.currentMenu = null;
-      }
     },
     // 菜单权限相关
     setMenu(state, value) {
