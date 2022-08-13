@@ -7,15 +7,15 @@
         size="mini"
         plain
       ></el-button>
-      <!-- <h3 style="color: #fff;">首页</h3> -->
       <!-- 使用面包屑组件 -->
       <!-- 用 ‘>’ 分隔-->
       <el-breadcrumb separator-class="el-icon-arrow-right">
+        <el-breadcrumb-item to="/home">首页</el-breadcrumb-item>
         <el-breadcrumb-item
-          v-for="item in tags"
+          v-for="item in routes"
           :key="item.path"
           :to="{ path: item.path }"
-          >{{ item.label }}</el-breadcrumb-item
+          >{{ item.meta.title }}</el-breadcrumb-item
         >
       </el-breadcrumb>
     </div>
@@ -64,7 +64,6 @@ header {
     border-radius: 50%;
   }
 }
-
 </style>
 
 <script>
@@ -82,12 +81,12 @@ export default {
       this.$store.commit("collapseMenu");
     },
     logOut() {
-      this.$store.commit('clearToken')  // 清除token
-      this.$store.commit('clearMenu')   // 清除menu
-      this.$router.push({name: 'login'})  // 跳转至登陆页面
+      this.$store.commit("clearToken"); // 清除token
+      this.$store.commit("clearMenu"); // 清除menu
+      this.$router.push({ name: "login" }); // 跳转至登陆页面
     },
     jumpTo() {
-      this.$router.push({name: 'usercenter'})
+      this.$router.push({ name: "usercenter" });
     }
   },
   computed: {
@@ -95,8 +94,14 @@ export default {
     ...mapState({
       // 获取tabsList数组
       tags: (state) => state.Tab.tabsList,
-      icon: (state) => state.Tab.iconFold
+      icon: (state) => state.Tab.iconFold,
     }),
+    // 监听路由（除首页），供面包屑组件遍历渲染
+    routes() {
+      return this.$route.matched.filter((item) => {
+        return (item.name !== "layout") && (item.name !== "home") 
+      });
+    },
   },
 };
 </script>

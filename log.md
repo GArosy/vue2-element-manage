@@ -3399,3 +3399,57 @@ http
 
 - 以`/user`为前缀的url都会由此模块加载。访问 `http://127.0.0.1:3000/user`
 
+
+
+
+
+## 8-12
+
+### 优化项目
+
+- **公共页面布局Layout**
+
+  layout公共页面是使用频率非常高的页面，且直接通过路由配置。本项目把侧边栏和导航头作为layout。
+
+  在pages文件夹新建Layout文件夹，新建index.vue路由出口
+
+
+
+## 8-13
+
+- 折叠菜单
+
+  - 动态icon
+
+  - 侧边栏添加粘性位置布局，随窗口滑动
+
+  - 优化面包屑组件，由监听菜单点击事件改为监听当前页面路由
+
+    ```js
+    // CommonHeader.vue
+    // ...
+    <!-- 使用面包屑组件 -->
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item to="/home">首页</el-breadcrumb-item>
+      <el-breadcrumb-item
+        v-for="item in routes"
+        :key="item.path"
+        :to="{ path: item.path }"
+        >{{ item.meta.title }}</el-breadcrumb-item
+      >
+    </el-breadcrumb>
+    
+    // ...
+    
+    computed: {
+    	// ...
+      // 监听路由（除首页），供面包屑组件遍历渲染
+      routes() {
+        return this.$route.matched.filter((item) => {
+          return (item.name !== "layout") && (item.name !== "home") 
+        });
+      },
+    },
+    ```
+
+    移除vuex关于面包屑组件的state

@@ -6,6 +6,7 @@
     text-color="#fff"
     active-text-color="#ffd04b"
     :collapse="isCollapse"
+    :collapse-transition="false"
   >
     <h3>{{ isCollapse ? "后台" : "通用后台管理系统" }}</h3>
     <!-- 一级菜单 -->
@@ -43,12 +44,14 @@
 </template>
 
 <style lang="scss" scoped>
+// 折叠菜单宽度，将.el-menu--collapse排除，否则动画效果出现BUG
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 200px;
   min-height: 400px;
 }
 
 .el-menu {
+  position: fixed;
   height: 100%;
   border: none;
 
@@ -64,16 +67,10 @@
 export default {
   data() {
     return {
-      menu: []
+      menu: [],
     };
   },
   methods: {
-    // handleOpen(key, keyPath) {
-      // console.log(key, keyPath);
-    // },
-    // handleClose(key, keyPath) {
-      // console.log(key, keyPath);
-    // },
     // 点击跳转
     clickMenu(item) {
       // console.log(this.$router);
@@ -81,9 +78,7 @@ export default {
         .push({
           name: item.name,
         })
-        .catch((e) => {}); // 使用 catch 方法捕获 router.push 异常，解决重复点击报错问题
-      // 添加面包屑
-      this.$store.commit("selectMenu", item);
+        .catch((e) => {}); // 捕获 router.push 异常，解决重复点击报错问题
     },
   },
   computed: {
@@ -97,8 +92,8 @@ export default {
       return this.$store.state.Tab.isCollapse;
     },
     asyncMenu() {
-      return this.$store.state.Tab.menu
-    }
+      return this.$store.state.Tab.menu;
+    },
   },
 };
 </script>
