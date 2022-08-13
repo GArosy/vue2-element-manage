@@ -3,7 +3,7 @@
     <div class="l-content">
       <el-button
         @click="handleMenu()"
-        icon="el-icon-menu"
+        :icon="icon"
         size="mini"
         plain
       ></el-button>
@@ -26,7 +26,7 @@
           <img class="user" :src="userImg" alt="用户头像" />
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>个人中心</el-dropdown-item>
+          <el-dropdown-item @click.native="jumpTo">个人中心</el-dropdown-item>
           <el-dropdown-item @click.native="logOut">退出</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -49,6 +49,8 @@ header {
 
   .el-button {
     margin-right: 20px;
+    padding: 5px 12px;
+    font-size: 18px;
   }
 }
 
@@ -83,6 +85,9 @@ export default {
       this.$store.commit('clearToken')  // 清除token
       this.$store.commit('clearMenu')   // 清除menu
       this.$router.push({name: 'login'})  // 跳转至登陆页面
+    },
+    jumpTo() {
+      this.$router.push({name: 'usercenter'})
     }
   },
   computed: {
@@ -90,6 +95,7 @@ export default {
     ...mapState({
       // 获取tabsList数组
       tags: (state) => state.Tab.tabsList,
+      icon: (state) => state.Tab.iconFold
     }),
   },
 };
