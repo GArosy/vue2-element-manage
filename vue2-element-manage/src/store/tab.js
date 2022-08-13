@@ -3,6 +3,7 @@ import Cookie from "js-cookie";
 export default {
   state: {
     isCollapse: false,
+    iconFold: "el-icon-s-fold",
     tabsList: [
       {
         path: "/home",
@@ -19,6 +20,9 @@ export default {
     // 侧边栏伸缩
     collapseMenu(state) {
       state.isCollapse = !state.isCollapse;
+      state.isCollapse
+        ? (state.iconFold = "el-icon-s-unfold")
+        : (state.iconFold = "el-icon-s-fold");
     },
     // 选择面包屑
     selectMenu(state, val) {
@@ -54,24 +58,24 @@ export default {
       const menu = JSON.parse(Cookie.get("menu"));
       state.menu = menu;
       const manuArray = [];
-      menu.forEach(item => {
+      menu.forEach((item) => {
         // 二级菜单
         if (item.children) {
           // 为菜单中的路由添加路径
           item.children = item.children.map((item) => {
             item.component = () => import(`@/pages/${item.url}`);
-            return item
-          })
-          manuArray.push(...item.children)
+            return item;
+          });
+          manuArray.push(...item.children);
         } else {
           // 一级菜单
           item.component = () => import(`@/pages/${item.url}`);
-          manuArray.push(item)
+          manuArray.push(item);
         }
       });
       // 路由的动态添加
-      manuArray.forEach(item => {
-        router.addRoute('main', item)
+      manuArray.forEach((item) => {
+        router.addRoute("main", item);
       });
     },
   },
