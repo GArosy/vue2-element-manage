@@ -9,6 +9,7 @@
       ref="loginForm"
       label-width="100px"
       class="login-container"
+      @submit.native.prevent
     >
       <!-- 标题 -->
       <h3 class="login-title">通用后台管理系统</h3>
@@ -24,6 +25,7 @@
           v-model="form.userName"
           auto-complete="off"
           placeholder="请输入用户名"
+          clearable
         ></el-input>
       </el-form-item>
       <el-form-item
@@ -37,6 +39,7 @@
           v-model="form.password"
           auto-complete="off"
           placeholder="请输入密码"
+          show-password
         ></el-input>
       </el-form-item>
       <!-- 登录按钮 -->
@@ -90,7 +93,6 @@ export default {
     login() {
       // 调用后台接口
       getMenu(this.form).then((res) => {
-        console.log(res);
         if (res.data.code === 20000) {
           this.$store.commit("clearMenu");
           this.$store.commit("setMenu", res.data.data.menu);
@@ -107,6 +109,24 @@ export default {
       // this.$store.commit("setToken", token);
       // this.$router.push({ name: "home" });
     },
+  },
+  /**
+   *    实现回车提交
+   * 1. 当表单中只有一个输入框时，按钮会默认为提交按钮，但会同时触发刷新页面
+   *    需要在表单上添加 @submit.native.prevent，阻止表单默认提交事件
+   * 2. 在登录按钮上面添加 native-type=“submit”
+   * 3. 监听键盘来触发登录事件
+   */
+  created() {
+    window.addEventListener(
+      "keydown",
+      (e) => {
+        if (e.key === "Enter") {
+          console.log(e);
+          this.login();
+        } else return
+      }
+    );
   },
 };
 </script>
