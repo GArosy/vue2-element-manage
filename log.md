@@ -3072,6 +3072,8 @@ http
 
   > mysql常用语句
   >
+  >  [MySQL语句详解 CSDN博客](https://blog.csdn.net/qq_44944641/article/details/116840432) 
+  >
   > //访问整个表的信息
   > select  * from goods
   > //带查询条件访问表
@@ -3082,7 +3084,7 @@ http
   > delete from goods
   > //带条件删除
   > delete from goods where id=4
-  > //修改语句
+> //修改语句
   > update 表名 set 字段名=‘新内容’ + where条件
 
   
@@ -3101,7 +3103,7 @@ http
       password: "xxx",  // MySQL 密码
       database: "test", // 指定使用的数据库
     }
-  };
+};
   ```
 
    db.js -- 创建数据库实例连接
@@ -3112,7 +3114,7 @@ http
   const express = require('express'); // 引入express
   const config = require('./config'); // 获取配置信息
   const $mysql = require('mysql');    // 引入mysql 
-  module.exports = $mysql.createConnection(config);  // mysql.createConnection 方法创建连接实例
+module.exports = $mysql.createConnection(config);  // mysql.createConnection 方法创建连接实例
   ```
 
   
@@ -3425,6 +3427,16 @@ http
 
   - 优化面包屑组件，由监听菜单点击事件改为监听当前页面路由
 
+    配置路由，加入meta
+
+    ```js
+    // index.js
+    // ...
+    meta: {
+            title: "首页"
+          }
+    ```
+
     ```js
     // CommonHeader.vue
     // ...
@@ -3453,3 +3465,99 @@ http
     ```
 
     移除vuex关于面包屑组件的state
+
+## 8-15
+
+### 从后端获取商品列表数据
+
+- 前端项目
+
+1. 修改api目录，将mock接口、路由和数据统一至mockServer文件夹；新建base.js(配置后台接口路径)，新建index.js(存放api请求方法)。移除原来mock对商品页面的路由监听
+
+2. 在main.js引入api，并修改vue原型，将api注册全局使用
+
+   ```js
+   // 引入api
+   import api from './api/index';
+   
+   // 全局使用api
+   Vue.prototype.$api = api;
+   ```
+
+3. 在Mall.vue页面中修改原来的方法，使用后端数据库中的数据
+
+4. 在vue.config.js中使用代理模式配置本地跨域
+
+   devServer.proxy的作用实际上是**将前后端放到同一个域**里，从而消除了跨域的问题。 过程可以概括为：
+
+   1. proxy检查我们的请求的url ： /api/todos有没有代理标识/api，如果有的话，在url前加上代理路径，即整个url为http://localhost:3000/api/api/todos
+   
+   2. pathRewrite中的^/api会把代理标识/api替换为空，即整个url变为：http://localhost:3000/api/todos
+   
+   ```js
+   module.exports = defineConfig({
+   	// ...
+     devServer: {  // 配置服务器
+       port: 8080, // 端口号
+       proxy: {  // 前后端分离，需要配置跨域（代理方法）
+         '/api': { // 如果请求地址以api开头，就触发代理机制
+           target: 'http://localhost:3000',  // 要代理的接口地址
+           ws: true,
+           changeOrigin: true,
+           pathRewrite: {  // 重写路径，将url中的前缀替换后再发送请求，如无必要可不加
+             '^/api': ''
+           }
+         }
+    }
+     }
+   })
+   ```
+   
+   
+
+- 后端项目
+
+1. 在mall.js中编写商品增删改查的接口
+
+2. 在app.js中配置跨域（CORS）
+
+   此配置用于生产环境
+
+   ```js
+   // 设置CORS跨域
+   app.use((req,res,next)=>{
+     // 设置响应头
+     res.setHeader('Access-Control-Allow-Origin', '*');
+     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+     res.setHeader('Access-Control-Allow-Methods', '*');
+     next()
+   })
+   ```
+
+
+
+
+### 使用nginx反向代理在生产环境配置跨域
+
+使用vue-cli的proxy跨域仅适用于本地开发环境，因为当Vue项目打包成静态文件时，他的代理也就失灵了，因为代理的前提是本地必须有service在运行。 
+
+生产环境下要么把前端项目放在后端项目里，要么设置cors解决跨域问题，前者不利于前后端分离，后者需要后端配置，而使用nginx设置反向代理可以很好解决跨域问题。 
+
+```nginx
+# conf.d/manage.conf
+
+server {
+  listen 80;
+  server_name manage.garosy.top;
+  location / {
+    root html/vue-manage;
+    index index.html;
+    try_files $uri $uri/ /index.html =404;
+  }
+  location /api/ {
+    proxy_pass http://manage.garosy.top:3000;	# 此处不能在末尾添加 /，
+  }
+  error_page 405 =200 $uri;
+}
+```
+
