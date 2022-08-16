@@ -14,9 +14,9 @@ Mock.mock(/user\/edit/,'post', userApi.updateUser);
 Mock.mock(/user\/getUser/,'get', userApi.getUserList);
 Mock.mock(/user\/del/,'get', userApi.deleteUser);
 // 商品api
-Mock.mock(/mall\/add/,'post', mallApi.createGood);
-Mock.mock(/mall\/edit/,'post', mallApi.updateGood);
+// Mock.mock(/mall\/add/,'post', mallApi.createGood);
+// Mock.mock(/mall\/edit/,'post', mallApi.updateGood);
 // Mock.mock(/mall\/getGoods/,'get', mallApi.getGoodsList);
-Mock.mock(/mall\/del/,'get', mallApi.deleteGood);
+// Mock.mock(/mall\/del/,'get', mallApi.deleteGood);
 // 获取菜单
 Mock.mock(/permission\/getMenu/,'post', permissionApi.getMenu);
