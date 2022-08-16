@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import { getData } from "@/api/data";
+import { getData } from "@/api/mockServer/index";
 // import * as echarts from 'echarts';
 import EchartsTemplate from "@/components/EchartsTemplate.vue";
 

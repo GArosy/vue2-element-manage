@@ -1,23 +1,19 @@
 <template>
   <div id="app">
-    <!-- <ElementUITest></ElementUITest> -->
+    <!-- router出口 -->
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-// import ElementUITest from './components/ElementUITest.vue'
-
 export default {
-  name: 'App',
-  components: {
-    // ElementUITest
-  }
-}
+  name: "App",
+};
 </script>
 
 <style>
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }

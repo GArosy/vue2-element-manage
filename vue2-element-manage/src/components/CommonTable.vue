@@ -1,6 +1,6 @@
 <template>
   <div class="common-table">
-    <el-table :data="tableData" height="75vh" stripe v-fit-columns fit>
+    <el-table :data="tableData" height="75vh" fit>
       <!-- 数据列 -->
       <el-table-column
         v-for="item in tableLabel"

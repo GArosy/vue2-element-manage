@@ -25,7 +25,7 @@
 <script>
 import CommonForm from "@/components/CommonForm.vue";
 import CommonTable from "@/components/CommonTable.vue";
-import { getUser } from "@/api/data";
+import { getUser } from "@/api/mockServer/index";
 export default {
   name: "User",
   components: {

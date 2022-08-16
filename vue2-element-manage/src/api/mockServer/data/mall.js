@@ -67,7 +67,7 @@ export default {
     };
   },
   // 增加商品
-  createGood: (config) => {
+  createGoods: (config) => {
     // console.log(config);
     const newItem = JSON.parse(config.body);
     newItem.id = Mock.Random.id();

@@ -55,7 +55,7 @@
 
 <script>
 // import Mock from "mockjs";
-import { getMenu } from "@/api/data";
+import { getMenu } from "@/api/mockServer/index";
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
