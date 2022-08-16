@@ -15,8 +15,10 @@ import router from "./router";
 import store from "./store/index";
 // 引入axios
 import axios from "axios";
-// 引入mockjs
-import "@/api/mock.js";
+// 引入mockjs路由
+import "@/api/mockServer/mock";
+// 引入api
+import api from './api/index';
 // 引入v-fit-columns
 import plugins from 'v-fit-columns';
 
@@ -27,6 +29,10 @@ Vue.use(plugins);
 
 // axios不是插件，如果想要全局使用axios，需要写入Vue原型中
 Vue.prototype.$http = axios;
+// 全局使用api
+Vue.prototype.$api = api;
+
+Vue.productionTip = false;
 
 // 创建全局路由守卫，监听页面
 router.beforeEach((to, from, next) => {
