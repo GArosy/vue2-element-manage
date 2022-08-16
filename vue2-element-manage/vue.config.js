@@ -10,9 +10,9 @@ module.exports = defineConfig({
         target: 'http://localhost:3000',  // 要代理的接口地址
         ws: true,
         changeOrigin: true,
-        pathRewrite: {  // 重写路径
-          '^/api': ''
-        }
+        // pathRewrite: {  // 重写路径，将url中的前缀替换后再发送请求
+        //   '^/api': ''
+        // }
       }
     }
   }
