@@ -4,13 +4,13 @@
 
 const base = {
   // 商品列表
-  goodsList: '/api/mall/getGoods', 
+  goodsList: '/mall/getGoods', 
   // 添加商品
-  createGoods: '/api/mall/createGoods',
+  createGoods: '/mall/createGoods',
   // 编辑商品
-  editGoods: '/api/mall/editGoods',
+  editGoods: '/mall/editGoods',
   // 删除商品
-  delGoods: '/api/mall/delGoods'
+  delGoods: '/mall/delGoods'
 }
 
 export default base;
