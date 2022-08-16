@@ -69,7 +69,7 @@ export default {
         {
           model: "name",
           label: "商品名称",
-          type: "input"
+          type: "input",
         },
         {
           model: "price",
@@ -100,10 +100,11 @@ export default {
       //   填写内容
       operateForm: {
         name: "",
-        addr: "",
-        age: "",
-        birth: "",
-        sex: "",
+        price: "",
+        amount: "",
+        type: "",
+        photo: "",
+        description: "",
       },
 
       // 搜索组件
@@ -125,7 +126,7 @@ export default {
         {
           prop: "id",
           label: "商品ID",
-          width: 200
+          width: 200,
         },
         {
           prop: "name",
@@ -164,20 +165,36 @@ export default {
   methods: {
     // 提交商品表单
     confirm() {
-      if (this.operateType === "edit") {
-        this.$http.post("/mall/edit", this.operateForm).then((res) => {
-          // console.log(res);
+      if (this.operateType === "add") {
+        this.$api.createGoods(this.operateForm).then((res) => {
+          console.log(res);
           this.isShow = false;
           this.getList();
         });
       } else {
-        this.$http.post("/mall/add", this.operateForm).then((res) => {
-          // console.log(res);
+        this.$api.editGoods(this.operateForm).then((res) => {
+          console.log(res);
           this.isShow = false;
           this.getList();
         });
       }
     },
+
+    // confirm() {
+    //   if (this.operateType === "edit") {
+    //     this.$http.post("/mall/edit", this.operateForm).then((res) => {
+    //       // console.log(res);
+    //       this.isShow = false;
+    //       this.getList();
+    //     });
+    //   } else {
+    //     this.$http.post("/mall/add", this.operateForm).then((res) => {
+    //       // console.log(res);
+    //       this.isShow = false;
+    //       this.getList();
+    //     });
+    //   }
+    // },
     // 点击新增商品
     addGood() {
       this.isShow = true;
@@ -198,15 +215,17 @@ export default {
       name ? (this.config.page = 1) : "";
       // console.log(this.$api);
       // getGoods({  // mock数据
-      this.$api.getGoods({
-        page: this.config.page,
-        name,
-      }).then((res) => {
-        console.log(res);
-        this.tableData = res.data.list;
-        this.config.total = res.data.count;
-        this.config.loading = false;
-      });
+      this.$api
+        .getGoods({
+          page: this.config.page,
+          name,
+        })
+        .then((res) => {
+          // console.log(res);
+          this.tableData = res.data.list;
+          this.config.total = res.data.count;
+          this.config.loading = false;
+        });
     },
     // 点击编辑商品
     editGood(row) {
@@ -224,27 +243,46 @@ export default {
         type: "warning",
       }).then(
         () => {
-          const id = row.id;
-          this.$http
-            .get("mall/del", {
-              params: { id },
-            })
-            .then(() => {
-              this.$message({
-                type: "success",
-                message: "删除成功",
-              });
-              this.getList();
-              console.log(`删除项:${row.name} ${row.id}`);
+          this.$api.delGoods({id: row.id}).then(() => {
+            this.$message({
+              type: "success",
+              message: "删除成功",
             });
-        },
-        (res) => console.log(res)
+            this.getList();
+            console.log(`删除项:${row.name} ${row.id}`);
+          });
+        }
       );
     },
+    // deleteGood(row) {
+    //   // element-ui中封装的二次确认弹窗
+    //   this.$confirm("此操作不可撤回，确定要删除吗？", "提示", {
+    //     confirmButtonText: "确定",
+    //     cancelButtonText: "取消",
+    //     type: "warning",
+    //   }).then(
+    //     () => {
+    //       const id = row.id;
+    //       this.$http
+    //         .get("mall/del", {
+    //           params: { id },
+    //         })
+    //         .then(() => {
+    //           this.$message({
+    //             type: "success",
+    //             message: "删除成功",
+    //           });
+    //           this.getList();
+    //           console.log(`删除项:${row.name} ${row.id}`);
+    //         });
+    //     },
+    //     (res) => console.log(res)
+    //   );
+    // },
   },
   created() {
     // 页面加载时即调用
-    this.getList(); 
+    this.getList();
   },
 };
 </script>
