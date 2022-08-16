@@ -45,10 +45,9 @@ export default {
   // 获取商品列表数据
   getGoodsList: (config) => {
     // 解构赋值经 param2Obj 解析后的 name page limit
-    // console.log(config);
+    console.log(config);
     const { name, page = 1, limit = 20 } = param2Obj(config.url);
     // console.log(`name:${name}`, `page:${page}`, `limit:${limit}`);
-    // 过滤空数据
     const mockList = List.filter((good) => {
       if (
         name &&
