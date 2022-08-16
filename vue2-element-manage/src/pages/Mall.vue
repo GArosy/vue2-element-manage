@@ -46,7 +46,9 @@
 <script>
 import CommonForm from "@/components/CommonForm.vue";
 import CommonTable from "@/components/CommonTable.vue";
-import { getGoods } from "@/api/data";
+// mock数据
+// import { getGoods } from "@/api/data";
+
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Mall",
@@ -194,7 +196,9 @@ export default {
     getList(name = "") {
       this.config.loading = true;
       name ? (this.config.page = 1) : "";
-      getGoods({
+      // console.log(this.$api);
+      // getGoods({  // mock数据
+      this.$api.getGoods({
         page: this.config.page,
         name,
       }).then((res) => {
@@ -240,7 +244,7 @@ export default {
   },
   created() {
     // 页面加载时即调用
-    this.getList();
+    this.getList(); 
   },
 };
 </script>
