@@ -34,6 +34,13 @@ const api = {
       params,
     });
   },
+  uploadPics(params) {
+    return axios.request({
+      url: base.uploadPics,
+      method: "POST",
+      params,
+    });
+  },
 };
 
 export default api;

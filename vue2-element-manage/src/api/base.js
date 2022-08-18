@@ -10,7 +10,9 @@ const base = {
   // 编辑商品
   editGoods: '/mall/editGoods',
   // 删除商品
-  delGoods: '/mall/delGoods'
+  delGoods: '/mall/delGoods',
+  // 上传图片
+  uploadPics: '/mall/uploadGoodsPics'
 }
 
 export default base;
