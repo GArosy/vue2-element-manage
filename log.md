@@ -690,16 +690,26 @@
 
   - 配置文件：新建@/config文件夹，新建index.js。存放项目运行时所需要的配置 
   
-    ```
+    ```js
     export default {
-        baseURL: {
-            // 开发环境
-            dev: '/api/',
-            // 生产环境
-            prod: ''
-        }
+    /**
+     * - baseURL会拼接在每个axios请求之前，可触发devServer代理实现开发环境的跨域
+     * - baseURL不能为绝对路径，会导致devServer.proxy失效
+     * - 如果项目部署路径不在根目录下
+     *      baseURL必须带 / 前缀
+     *      例如项目部署在 https://example.com/licenses/ ，发送 axios.get('/licenses') 请求
+     *      baseURL = '/api' => https://example.com/api/licenses
+     *      baseURL = 'api' => https://example.com/licenses/api/licenses
+      */
+      baseURL: {
+          // 开发环境
+          dev: '/api/',
+          // 生产环境
+          prod: ''
+      }
     }
-    ```
+  ```
+  ```
   
   - 定义HttpRequest class，添加属性和方法
   
@@ -751,8 +761,8 @@
     
     // 暴露类的实例
     export default new HttpRequest(baseUrl)
-    ```
-  
+  ```
+
   - /api新建一个接口文件data.js
   
     ```js
@@ -3536,8 +3546,9 @@ module.exports = $mysql.createConnection(config);  // mysql.createConnection 方
 
 
 
-
 ### 使用nginx反向代理在生产环境配置跨域
+
+>  [前后端分离项目实践--BaseURL与跨域 - 简书 (jianshu.com)](https://www.jianshu.com/p/27d61b548478) 
 
 使用vue-cli的proxy跨域仅适用于本地开发环境，因为当Vue项目打包成静态文件时，他的代理也就失灵了，因为代理的前提是本地必须有service在运行。 
 
@@ -3560,4 +3571,22 @@ server {
   error_page 405 =200 $uri;
 }
 ```
+
+## 8-17
+
+添加商品类目选择器
+
+```vue
+<el-cascader
+  v-if="item.type === 'cascader'"
+  v-model="form[item.model]"
+  :options="cascaderOptions"
+  :show-all-levels='false'
+>
+</el-cascader>
+```
+
+## 8-18
+
+上传图片功能
 
