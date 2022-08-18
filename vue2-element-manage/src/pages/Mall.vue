@@ -8,11 +8,12 @@
       <common-form
         :formLabel="operateFormLabel"
         :form="operateForm"
+        :cascaderOptions="cascaderOptions"
         :inline="true"
         ref="form"
       ></common-form>
       <div class="dialog-footer">
-        <el-button @click="isShow">取消</el-button>
+        <el-button @click="isShow = !isShow">取消</el-button>
         <el-button @click="confirm" type="primary">确定</el-button>
       </div>
     </el-dialog>
@@ -84,7 +85,7 @@ export default {
         {
           model: "type",
           label: "商品类目",
-          type: "input",
+          type: "cascader",
         },
         {
           model: "photo",
@@ -95,6 +96,79 @@ export default {
           model: "description",
           label: "商品描述",
           type: "input",
+        },
+      ],
+      //   级联选择器
+      cascaderOptions: [
+        {
+          value: "日用百货",
+          label: "日用百货",
+          children: [
+            {
+              value: "个人护理",
+              label: "个人护理",
+            },
+            {
+              value: "厨房用品",
+              label: "厨房用品",
+            },
+            {
+              value: "床上用品",
+              label: "床上用品",
+            },
+            {
+              value: "宠物生活",
+              label: "宠物生活",
+            },
+            {
+              value: "百货合辑",
+              label: "百货合辑",
+            },
+          ],
+        },
+        {
+          value: "食品",
+          label: "食品",
+          children: [
+            {
+              value: "方便速食",
+              label: "方便速食",
+            },
+            {
+              value: "乳饮酒水",
+              label: "乳饮酒水",
+            },
+            {
+              value: "粮油调味",
+              label: "粮油调味",
+            },
+            {
+              value: "品质生鲜",
+              label: "品质生鲜",
+            },
+          ],
+        },
+        {
+          value: "电器数码",
+          label: "电器数码",
+          children: [
+            {
+              value: "电脑办公",
+              label: "电脑办公",
+            },
+            {
+              value: "运动穿戴",
+              label: "运动穿戴",
+            },
+            {
+              value: "居家清洁",
+              label: "居家清洁",
+            },
+            {
+              value: "手机平板",
+              label: "手机平板",
+            },
+          ],
         },
       ],
       //   填写内容
@@ -126,23 +200,27 @@ export default {
         {
           prop: "id",
           label: "商品ID",
-          width: 200,
+          width: 270,
         },
         {
           prop: "name",
           label: "商品名称",
+          width: 150,
         },
         {
           prop: "price",
           label: "商品价格",
+          width: 100
         },
         {
           prop: "amount",
           label: "商品数量",
+          width: 100
         },
         {
           prop: "type",
           label: "商品类目",
+          width: 150
         },
         {
           prop: "photo",
@@ -151,7 +229,7 @@ export default {
         {
           prop: "description",
           label: "商品描述",
-          width: 250,
+          width: 'auto',
         },
       ],
       //   分页
@@ -225,6 +303,7 @@ export default {
           this.tableData = res.data.list;
           this.config.total = res.data.count;
           this.config.loading = false;
+          console.log(res);
         });
     },
     // 点击编辑商品
@@ -241,18 +320,16 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
-      }).then(
-        () => {
-          this.$api.delGoods({id: row.id}).then(() => {
-            this.$message({
-              type: "success",
-              message: "删除成功",
-            });
-            this.getList();
-            console.log(`删除项:${row.name} ${row.id}`);
+      }).then(() => {
+        this.$api.delGoods({ id: row.id }).then(() => {
+          this.$message({
+            type: "success",
+            message: "删除成功",
           });
-        }
-      );
+          this.getList();
+          console.log(`删除项:${row.name} ${row.id}`);
+        });
+      });
     },
     // deleteGood(row) {
     //   // element-ui中封装的二次确认弹窗

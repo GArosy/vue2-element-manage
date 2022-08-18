@@ -9,10 +9,18 @@
         v-if="item.type === 'input'"
         :placeholder="`请输入${item.label}`"
         v-model="form[item.model]"
+        clearable
       >
       </el-input>
       <el-switch v-if="item.type === 'switch'" v-model="form[item.model]">
       </el-switch>
+      <el-cascader
+        v-if="item.type === 'cascader'"
+        v-model="form[item.model]"
+        :options="cascaderOptions"
+        :show-all-levels='false'
+      >
+      </el-cascader>
       <el-date-picker
         v-if="item.type === 'date'"
         type="date"
@@ -46,12 +54,12 @@ export default {
   props: {
     formLabel: Array,
     form: Object,
+    cascaderOptions: Array,
     inline: Boolean,
   },
   data() {
     return {
-
-    }
-  }
+    };
+  },
 };
 </script>
