@@ -14,13 +14,15 @@
       </el-input>
       <el-switch v-if="item.type === 'switch'" v-model="form[item.model]">
       </el-switch>
+      <!-- 级联选择器 -->
       <el-cascader
         v-if="item.type === 'cascader'"
         v-model="form[item.model]"
         :options="cascaderOptions"
-        :show-all-levels='false'
+        :show-all-levels="false"
       >
       </el-cascader>
+      <!-- 日期 -->
       <el-date-picker
         v-if="item.type === 'date'"
         type="date"
@@ -28,6 +30,7 @@
         placeholder="选择日期"
         v-model="form[item.model]"
       ></el-date-picker>
+      <!-- 选择器 -->
       <el-select
         v-if="item.type === 'select'"
         placeholder="请选择"
@@ -40,6 +43,7 @@
           :value="optItem.value"
         ></el-option>
       </el-select>
+      <common-upload v-if="item.type === 'upload'"></common-upload>
     </el-form-item>
     <!-- 如果以上组件都不满足，使用自定义插槽 -->
     <el-form-item>
@@ -49,8 +53,13 @@
 </template>
 
 <script>
+import CommonUpload from "./CommonUpload.vue";
+
 export default {
   name: "CommonForm",
+  components: {
+    CommonUpload,
+  },
   props: {
     formLabel: Array,
     form: Object,
@@ -58,8 +67,7 @@ export default {
     inline: Boolean,
   },
   data() {
-    return {
-    };
+    return {};
   },
 };
 </script>

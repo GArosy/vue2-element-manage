@@ -22,10 +22,6 @@ import base from "../api/base";
 
 export default {
   name: "CommonUpload",
-  // props: {
-  //   submitUpload: Object,
-  //   onUploadChange: Object,
-  // },
   data() {
     return {
       fileList: [],
@@ -58,7 +54,6 @@ export default {
 
       let formData = new FormData();
       formData.append('file', file)
-      // console.log(formData.get('file'));
 
       this.$api.uploadPics(formData).then((result) => {
         console.log(result);
