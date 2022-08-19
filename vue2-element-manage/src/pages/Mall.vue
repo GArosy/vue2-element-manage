@@ -90,7 +90,7 @@ export default {
         {
           model: "photo",
           label: "商品图片",
-          type: "input",
+          type: "upload",
         },
         {
           model: "description",
@@ -101,8 +101,8 @@ export default {
       //   级联选择器
       cascaderOptions: [
         {
-          value: "日用百货",
-          label: "日用百货",
+          value: "居家生活",
+          label: "居家生活",
           children: [
             {
               value: "个人护理",
@@ -121,18 +121,26 @@ export default {
               label: "宠物生活",
             },
             {
-              value: "百货合辑",
-              label: "百货合辑",
+              value: "居家百货",
+              label: "居家百货",
+            },
+            {
+              value: "一次性用品",
+              label: "一次性用品",
             },
           ],
         },
         {
-          value: "食品",
-          label: "食品",
+          value: "食品饮料",
+          label: "食品饮料",
           children: [
             {
               value: "方便速食",
               label: "方便速食",
+            },
+            {
+              value: "休闲食品",
+              label: "休闲食品",
             },
             {
               value: "乳饮酒水",
@@ -149,8 +157,8 @@ export default {
           ],
         },
         {
-          value: "电器数码",
-          label: "电器数码",
+          value: "家电数码",
+          label: "家电数码",
           children: [
             {
               value: "电脑办公",
@@ -168,7 +176,37 @@ export default {
               value: "手机平板",
               label: "手机平板",
             },
+            {
+              value: "小电器",
+              label: "小电器",
+            },
           ],
+        },
+        {
+          value: "服饰",
+          label: "服饰",
+          children: [
+            {
+              value: "男装",
+              label: "男装",
+            },
+            {
+              value: "女装",
+              label: "女装",
+            },
+            {
+              value: "男鞋",
+              label: "男鞋",
+            },
+            {
+              value: "女鞋",
+              label: "女鞋",
+            },
+            {
+              value: "箱包",
+              label: "箱包",
+            },
+          ]
         },
       ],
       //   填写内容
@@ -356,6 +394,14 @@ export default {
     //     (res) => console.log(res)
     //   );
     // },
+
+    // 上传图片 
+    // onUploadChange() {
+    //   this.$api.uploadPics({})
+    // },
+    // submitUpload() {
+    //   console.log('submit');
+    // }
   },
   created() {
     // 页面加载时即调用

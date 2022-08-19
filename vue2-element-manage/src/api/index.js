@@ -38,7 +38,11 @@ const api = {
     return axios.request({
       url: base.uploadPics,
       method: "POST",
-      params,
+      // 设置headers，到达后端时会自动转换为formdata格式
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      },
+      data: params,
     });
   },
 };
