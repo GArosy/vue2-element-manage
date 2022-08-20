@@ -1,7 +1,8 @@
 <template>
   <el-upload
     accept="image/jpeg,image/gif,image/png"
-    class="upload-demo"
+    class="upload"
+    style="width: 220px"
     ref="upload"
     drag
     action=""
@@ -19,9 +20,13 @@
 
 <script>
 import base from "../api/base";
+import uuid from "../utils/uuid";
 
 export default {
   name: "CommonUpload",
+  props: {
+    goodsId: String,
+  },
   data() {
     return {
       fileList: [],
@@ -29,14 +34,9 @@ export default {
     };
   },
   methods: {
-    // 点击上传按钮
-    // submitUpload() {
-    //   this.$refs.upload.submit();
-    // },
     // 自定义上传请求
     uploadRequest(param) {
-      console.log('uploadRequest', param);
-
+      // 验证格式和大小
       const file = param.file;
       const isImage =
         file.type === "image/jpeg" ||
@@ -53,49 +53,58 @@ export default {
       }
 
       let formData = new FormData();
-      formData.append('file', file)
+      formData.append("id", uuid()); // 生成唯一id作为图片名
+      formData.append("goodsId", this.goodsId); // 商品id
+      formData.append("file", file);
 
-      this.$api.uploadPics(formData).then((result) => {
-        console.log(result);
-        if (result.data.res_code === '1') {
-          this.$message.success("上传成功！");
-        } else {
-          this.$message.error("上传失败！");
-        }
-      }).catch((err) => {
-        console.log(err);
-      });
+      this.$api
+        .uploadPics(formData)
+        .then((result) => {
+          if (result.data.res_code === "1") {
+            this.$message.success("上传成功！");
+          } else {
+            this.$message.error("上传失败！");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
-    // onUploadChange(file, fileList) {
-    //   // console.log(fileList);
-    //   const isImage =
-    //     file.raw.type === "image/jpeg" ||
-    //     file.raw.type === "image/png" ||
-    //     file.raw.type === "image/gif";
-    //   const isLimit1M = file.size / 1024 / 1024 < 1;
 
-    //   if (!isImage) {
-    //     this.$message.error("上传文件格式错误！");
-    //     return false;
-    //   }
-    //   if (!isLimit1M) {
-    //     this.$message.error("上传文件大小不能超过1MB");
-    //     this.fileList = fileList.splice(-1);
-    //     return false;
-    //   }
-
-    //   let reader = new FileReader();
-    //   // 将图片转化为base64的URL
-    //   reader.readAsDataURL(file.raw);
-    //   // 处理load事件,读取操作完成时触发
-    //   reader.onload = function (e) {
-    //     // console.log(e);
-    //   };
-    // },
-    // onUploadSuccess(res, file, fileList) {
-    //   console.log("上传成功");
-    //   console.log(res);
-    // },
+    // 回显已上传的图片列表
+    getGoodsPicsList() {
+      this.$api
+        .showGoodsPicsList({
+          goodsId: this.goodsId,
+        })
+        .then((res) => {
+          console.log(res);
+          // 从后台数据库获取已上传的图片列表
+          if (res.data.code === 1) {
+            res.data.list.forEach((element) => {
+              this.fileList.push({ ...element, name: element.originalname });
+            });
+          } else {
+            console.log("0");
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+  },
+  created() {
+    this.getGoodsPicsList();
   },
 };
 </script>
+
+<style lang="scss" scoped>
+/deep/ .el-upload {
+  width: 100%;
+}
+/deep/ .el-upload-dragger {
+  width: 100%;
+  height: 160px;
+}
+</style>
