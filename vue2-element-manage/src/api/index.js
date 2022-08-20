@@ -45,6 +45,13 @@ const api = {
       data: params,
     });
   },
+  showGoodsPicsList(params) {
+    return axios.request({
+      url: base.showGoodsPicsList,
+      method: "GET",
+      params,
+    });
+  },
 };
 
 export default api;

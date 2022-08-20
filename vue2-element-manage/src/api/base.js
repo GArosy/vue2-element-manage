@@ -12,7 +12,9 @@ const base = {
   // 删除商品
   delGoods: '/mall/delGoods',
   // 上传图片
-  uploadPics: '/mall/uploadGoodsPics'
+  uploadPics: '/mall/uploadGoodsPics',
+  // 回显已上传的图片列表
+  showGoodsPicsList: '/mall/showGoodsPicsList'
 }
 
-export default base;
+export default base
