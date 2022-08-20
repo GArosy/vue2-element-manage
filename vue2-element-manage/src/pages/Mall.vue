@@ -4,11 +4,13 @@
     <el-dialog
       :title="operateType === 'add' ? '添加商品' : '更新商品'"
       :visible.sync="isShow"
+      width="750px"
     >
       <common-form
         :formLabel="operateFormLabel"
         :form="operateForm"
         :cascaderOptions="cascaderOptions"
+        :id_Mall="goodsId"
         :inline="true"
         ref="form"
       ></common-form>
@@ -210,14 +212,9 @@ export default {
         },
       ],
       //   填写内容
-      operateForm: {
-        name: "",
-        price: "",
-        amount: "",
-        type: "",
-        photo: "",
-        description: "",
-      },
+      operateForm: {},
+      //   商品id
+      goodsId: '',
 
       // 搜索组件
       searchFormLabel: [
@@ -312,7 +309,7 @@ export default {
     //   }
     // },
     // 点击新增商品
-    addGood() {
+    addGood(row) {
       this.isShow = true;
       this.operateType = "add";
       this.operateForm = {
@@ -324,6 +321,7 @@ export default {
         photo: "",
         description: "",
       };
+      this.goodsId = row.id;
     },
     // 获取商品列表
     getList(name = "") {
@@ -341,7 +339,7 @@ export default {
           this.tableData = res.data.list;
           this.config.total = res.data.count;
           this.config.loading = false;
-          console.log(res);
+          // console.log(res);
         });
     },
     // 点击编辑商品
@@ -349,7 +347,7 @@ export default {
       this.operateType = "edit";
       this.isShow = true;
       this.operateForm = row;
-      console.log(`编辑项:${row.name} ${row.id}`);
+      this.goodsId = row.id;
     },
     // 删除商品项
     deleteGood(row) {

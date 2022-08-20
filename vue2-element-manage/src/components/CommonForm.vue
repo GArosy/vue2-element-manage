@@ -43,7 +43,10 @@
           :value="optItem.value"
         ></el-option>
       </el-select>
-      <common-upload v-if="item.type === 'upload'"></common-upload>
+      <common-upload
+        v-if="item.type === 'upload'"
+        :goodsId="id_CommonForm"
+      ></common-upload>
     </el-form-item>
     <!-- 如果以上组件都不满足，使用自定义插槽 -->
     <el-form-item>
@@ -64,10 +67,13 @@ export default {
     formLabel: Array,
     form: Object,
     cascaderOptions: Array,
+    id_Mall: String,
     inline: Boolean,
   },
   data() {
-    return {};
+    return {
+      id_CommonForm: this.id_Mall
+    };
   },
 };
 </script>
