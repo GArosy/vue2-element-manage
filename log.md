@@ -708,9 +708,11 @@
           prod: ''
       }
     }
+    ```
   ```
+
   ```
-  
+
   - 定义HttpRequest class，添加属性和方法
   
     ```js
@@ -761,6 +763,7 @@
     
     // 暴露类的实例
     export default new HttpRequest(baseUrl)
+    ```
   ```
 
   - /api新建一个接口文件data.js
@@ -774,8 +777,8 @@
             data: param
         })
     }
-    ```
-  
+  ```
+
   - 在Home.vue中添加接口
   
     ```js
@@ -3586,7 +3589,222 @@ server {
 </el-cascader>
 ```
 
+==BUG==：elementui级联选择器有无法回显的问题，经查发现有几种办法处理：1、设置黑色placeholder；2、单独处理回显数组并绑定，等等，都难称优雅。暂不处理此问题
+
 ## 8-18
 
 上传图片功能
 
+- 后端
+
+  - 安装multer，fs中间件并引入
+
+    Multer 是一个 node.js 中间件，用于处理 `multipart/form-data` 类型的表单数据，它主要用于上传文件。 
+
+    Multer 会添加一个 `body` 对象 以及 `file` 或 `files` 对象 到 express 的 `request` 对象中。 `body` 对象包含表单的文本域信息，`file` 或 `files` 对象包含对象表单上传的文件信息。 
+
+    ```powershell
+    cnpm i multer
+    cnpm i fs
+    ```
+
+    ```js
+    const fs = require('fs');
+    const multer = require('multer');
+    ```
+
+  - 根目录下新建文件夹upload
+
+  - 使用multer，编写接口
+
+    ```js
+    // 上传图片
+    const storage = multer.diskStorage({
+      // 要保存的文件夹
+      destination: (req, file, cb) => {
+        cb(null, "./upload");
+      },
+      // 在文件夹下的文件名
+      filename: (req, file, cb) => {
+        cb(null, Date.now() + "-" + file.originalname);
+      },
+    });
+    // 创建upload文件夹
+    const createFolder = (folder) => {
+      try {
+        fs.accessSync(folder);
+      } catch (e) {
+        fs.mkdirSync(folder);
+      }
+    };
+    const uploadFolder = "./upload/";
+    createFolder(uploadFolder);
+    // 实例化multer
+    const upload = multer({
+      storage: storage
+    });
+    ```
+
+  - 编写接口
+
+    ```js
+    router.post("/uploadGoodsPics", upload.single("file"), (req, res) => {
+      // 使用json解析FormData数据
+      const { originalname, size, destination } = JSON.parse(
+        JSON.stringify(req.file)
+      );
+    
+      // 打印日志
+      logger.info(
+        `[${req.method}-${res.statusMessage}-${req.originalUrl}-${
+          req.ip
+        }]: 上传图片:${JSON.stringify(req.body.file)} `
+      );
+      
+      // 返回数据
+      return res.json({
+        res_code: "1",
+        name: originalname,
+        size,
+        destination
+      });
+    });
+    ```
+
+    
+
+
+
+
+
+- 前端
+
+  - 使用el-upload，新建组件CommonUpload.vue并引入CommonForm组件
+
+    ```vue
+    <template>
+      <el-upload
+        accept="image/jpeg,image/gif,image/png"
+        class="upload-demo"
+        ref="upload"
+        :action="uploadURL"
+        :on-change="onUploadChange"
+        :on-success="onUploadSuccess"
+        :file-list="fileList"
+        :auto-upload="false"
+      >
+        <el-button slot="trigger" size="small" type="primary">选取图片</el-button>
+        <el-button
+          style="margin-left: 10px"
+          size="small"
+          type="success"
+          @click="submitUpload"
+          >上传图片</el-button
+        >
+        <div slot="tip" class="el-upload__tip">
+          只能上传jpg/png/gif图片，且不超过1MB
+        </div>
+      </el-upload>
+    </template>
+    ```
+
+    `:auto-upload="false"` 关闭自动上传
+
+## 8-20
+
+- 上传图片接口接入数据库，从Mall.vue页面将商品id传入commonupload组件，后将商品id传入数据库，对应此商品的图片
+
+  ```js
+  let formData = new FormData();
+  formData.append("id", uuid()); // 生成唯一id作为图片名
+  formData.append("goodsId", this.goodsId); // 商品id
+  formData.append("file", file);
+  
+  this.$api
+    .uploadPics(formData)
+    .then((result) => {
+      if (result.data.res_code === "1") {
+        this.$message.success("上传成功！");
+      } else {
+        this.$message.error("上传失败！");
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  ```
+
+  
+
+- 点击编辑商品时，商品图片列表会访问后端接口，进入数据库查找该商品对应的之前已上传的图片，并在页面中加载（将其放在created周期中）
+
+  ```js
+  getGoodsPicsList() {
+    this.$api
+      .showGoodsPicsList({
+        goodsId: this.goodsId,
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.data.code === 1) {
+          res.data.list.forEach((element) => {
+            this.fileList.push({ ...element, name: element.originalname });	// 备注👇
+          });
+        } else {
+          console.log("0");
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  },
+  ```
+
+  ==BUG==：这里的回显需要依靠elementUI上传组件中内置的fileList属性，经尝试发现它本身结构默认为数组，可渲染项必须是带有 `name` 字段的对象，否则会报错缺失 `uid` 属性（uid无需手动添加）
+
+- 后端代码
+
+  ```js
+  router.post("/uploadGoodsPics", upload.single("file"), (req, res) => {
+    // 使用json解析FormData数据
+    const { originalname, size, destination } = JSON.parse(
+      JSON.stringify(req.file)
+    );
+    const id = JSON.parse(JSON.stringify(req.body.id));
+    const goodsId = JSON.parse(JSON.stringify(req.body.goodsId));
+  
+    // 图片信息储存至数据库
+    let sql_code = "0";
+    const sql = `insert into goodspic values ('${id}','${goodsId}','${req.file.filename}','${req.file.originalname}','${req.file.mimetype}','${req.file.size}')`;
+    db.queryDB(sql, (err, data) => {
+      if (err) {
+        console.log(`query error: ${err}`);
+        return;
+      } else {
+        sql_code = "1";
+      }
+    });
+  
+  /**
+   * 回显已上传的图片列表
+   */
+  router.get("/showGoodsPicsList", (req, res) => {
+    const sql = `select * from goodspic where goodsid='${req.query.goodsId}'`;
+    db.queryDB(sql, (err, data) => {
+      if (err) {
+        console.log(`query error: ${err}`);
+        return;
+      } else {
+        res.json({
+          code: 1,
+          method: "GET",
+          list: data,
+        });
+      }
+    });
+  });
+  ```
+
+  
+
+- ==BUG==：请求触发问题。页面加载后第一个点击的商品会触发请求后台接口，正确显示图片列表，但之后点击其他商品时，图片列表依然是第一个商品的内容。可能需要使用vuex触发一个公共方法，来即时更新上传图片列表。
