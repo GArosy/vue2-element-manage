@@ -45,7 +45,6 @@
       </el-select>
       <common-upload
         v-if="item.type === 'upload'"
-        :goodsId="id_CommonForm"
       ></common-upload>
     </el-form-item>
     <!-- 如果以上组件都不满足，使用自定义插槽 -->

@@ -10,7 +10,6 @@
         :formLabel="operateFormLabel"
         :form="operateForm"
         :cascaderOptions="cascaderOptions"
-        :id_Mall="goodsId"
         :inline="true"
         ref="form"
       ></common-form>
@@ -350,6 +349,7 @@ export default {
       this.operateForm = row;
       this.goodsId = row.id;
       this.$store.commit('changeGoodsId', this.goodsId)   // 使用vuex管理当前点击的商品id
+      this.$store.dispatch('asyncGetGoodsPicsList')
     },
     // 删除商品项
     deleteGood(row) {

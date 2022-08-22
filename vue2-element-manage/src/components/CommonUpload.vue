@@ -19,15 +19,15 @@
 </template>
 
 <script>
-import base from "../api/base";
 import uuid from "../utils/uuid";
 
 export default {
   name: "CommonUpload",
   data() {
     return {
-      fileList: [],
-      uploadURL: base.uploadPics,
+      // 原数据交由vuex维护
+      // fileList: this.getFileList(),
+      // goodsId: ''
     };
   },
   methods: {
@@ -51,7 +51,7 @@ export default {
 
       let formData = new FormData();
       formData.append("id", uuid()); // 生成唯一id作为图片名
-      formData.append("goodsId", this.goodsId); // 商品id
+      formData.append("goodsId", this.getGoodsId); // 商品id
       formData.append("file", file);
 
       this.$api
@@ -67,36 +67,14 @@ export default {
           console.log(err);
         });
     },
-
-    // 回显已上传的图片列表
-    getGoodsPicsList() {
-      this.$api
-        .showGoodsPicsList({
-          goodsId: this.goodsId,
-        })
-        .then((res) => {
-          console.log(res);
-          // 从后台数据库获取已上传的图片列表
-          if (res.data.code === 1) {
-            res.data.list.forEach((element) => {
-              this.fileList.push({ ...element, name: element.originalname });
-            });
-          } else {
-            console.log("0");
-          }
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    },
   },
   computed: {
-    goodsId() {
-      return this.$store.Mall.goodsId
+    getGoodsId() {
+      return this.$store.state.Mall.goodsId
+    },
+    fileList() {
+      return this.$store.state.Mall.fileList
     }
-  },
-  created() {
-    this.getGoodsPicsList();
   },
 };
 </script>
