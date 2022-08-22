@@ -52,6 +52,13 @@ const api = {
       params,
     });
   },
+  removeGoodsPics(params) {
+    return axios.request({
+      url: base.removeGoodsPics,
+      method: "GET",
+      params,
+    });
+  },
 };
 
 export default api;

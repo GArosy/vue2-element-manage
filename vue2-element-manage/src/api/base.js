@@ -14,7 +14,9 @@ const base = {
   // 上传图片
   uploadPics: '/mall/uploadGoodsPics',
   // 回显已上传的图片列表
-  showGoodsPicsList: '/mall/showGoodsPicsList'
+  showGoodsPicsList: '/mall/showGoodsPicsList',
+  // 移除已上传图片
+  removeGoodsPics: '/mall/removeGoodsPics'
 }
 
 export default base
