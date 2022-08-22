@@ -33,7 +33,7 @@ export default {
             });
             context.commit("changeFileList", result);
           } else {
-            console.log("0");
+            console.log("error");
           }
         })
         .catch((e) => {

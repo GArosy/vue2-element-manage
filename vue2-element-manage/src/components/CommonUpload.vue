@@ -7,6 +7,7 @@
     drag
     action=""
     :http-request="uploadRequest"
+    :on-remove="handleRemove"
     :file-list="fileList"
     :auto-upload="true"
   >
@@ -67,14 +68,31 @@ export default {
           console.log(err);
         });
     },
+    // 移除文件列表文件时的钩子
+    handleRemove(file, fileList) {
+      console.log(file);
+      this.$api
+        .removeGoodsPics({ name: file.picname })
+        .then((res) => {
+          // console.log(res);
+          if (res.data.code === 1) {
+            this.$message.success("删除成功！");
+          } else {
+            this.$message.error("删除失败！");
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
   },
   computed: {
     getGoodsId() {
-      return this.$store.state.Mall.goodsId
+      return this.$store.state.Mall.goodsId;
     },
     fileList() {
-      return this.$store.state.Mall.fileList
-    }
+      return this.$store.state.Mall.fileList;
+    },
   },
 };
 </script>
