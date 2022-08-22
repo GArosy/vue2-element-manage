@@ -67,12 +67,10 @@ export default {
     formLabel: Array,
     form: Object,
     cascaderOptions: Array,
-    id_Mall: String,
     inline: Boolean,
   },
   data() {
     return {
-      id_CommonForm: this.id_Mall
     };
   },
 };

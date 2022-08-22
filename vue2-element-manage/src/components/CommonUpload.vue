@@ -24,9 +24,6 @@ import uuid from "../utils/uuid";
 
 export default {
   name: "CommonUpload",
-  props: {
-    goodsId: String,
-  },
   data() {
     return {
       fileList: [],
@@ -92,6 +89,11 @@ export default {
           console.log(e);
         });
     },
+  },
+  computed: {
+    goodsId() {
+      return this.$store.Mall.goodsId
+    }
   },
   created() {
     this.getGoodsPicsList();

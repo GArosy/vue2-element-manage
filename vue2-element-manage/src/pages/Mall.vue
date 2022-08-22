@@ -322,6 +322,7 @@ export default {
         description: "",
       };
       this.goodsId = row.id;
+      this.$store.commit('changeGoodsId', this.goodsId)   // 使用vuex管理当前点击的商品id
     },
     // 获取商品列表
     getList(name = "") {
@@ -348,6 +349,7 @@ export default {
       this.isShow = true;
       this.operateForm = row;
       this.goodsId = row.id;
+      this.$store.commit('changeGoodsId', this.goodsId)   // 使用vuex管理当前点击的商品id
     },
     // 删除商品项
     deleteGood(row) {
