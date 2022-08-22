@@ -1,23 +1,37 @@
+import api from "@/api/index";
+
 export default {
   state: {
-    goodsId: ''
+    goodsId: "",
+    fileList: [],
   },
   mutations: {
     changeGoodsId(state, id) {
-      state.goodsId = id
+      state.goodsId = id;
+      console.log(state.goodsId);
+      console.log(state.fileList);
     },
-    getGoodsPicsList() {
-      this.$api
-        .showGoodsPicsList({
-          goodsId: this.goodsId,
+    changeFileList(state, list) {
+      state.fileList = list;
+      console.log(state.fileList);
+    },
+  },
+  actions: {
+    asyncGetGoodsPicsList(context) {
+      let result = [];
+      // vuex中无法直接使用$api对象，此处手动引入api
+      // this.$api. 
+      api.showGoodsPicsList({
+          goodsId: context.state.goodsId,
         })
         .then((res) => {
-          console.log(res);
+          // console.log(res);
           // 从后台数据库获取已上传的图片列表
           if (res.data.code === 1) {
             res.data.list.forEach((element) => {
-              this.fileList.push({ ...element, name: element.originalname });
+              result.push({ ...element, name: element.originalname });
             });
+            context.commit("changeFileList", result);
           } else {
             console.log("0");
           }
@@ -26,5 +40,5 @@ export default {
           console.log(e);
         });
     },
-  }
-}
+  },
+};
