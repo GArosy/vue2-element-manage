@@ -1,3 +1,7 @@
+```
+
+```
+
 # vue2-element-manage 搭建日志
 ## 6-7
 
@@ -3808,3 +3812,123 @@ server {
   
 
 - ==BUG==：请求触发问题。页面加载后第一个点击的商品会触发请求后台接口，正确显示图片列表，但之后点击其他商品时，图片列表依然是第一个商品的内容。可能需要使用vuex触发一个公共方法，来即时更新上传图片列表。
+
+## 8-22
+
+- 使用VueX管理商品id数据
+
+- 使用VueX管理上传图片列表数据 `fileList`，并使用action从后台异步获取列表数据，解决触发请求后台数据不及时的BUG
+
+  ```js
+  // mall.js
+  import api from "@/api/index";
+  
+  export default {
+    state: {
+      goodsId: "",
+      fileList: [],
+    },
+    mutations: {
+      changeGoodsId(state, id) {
+        state.goodsId = id;
+        console.log(state.goodsId);
+        console.log(state.fileList);
+      },
+      changeFileList(state, list) {
+        state.fileList = list;
+        console.log(state.fileList);
+      },
+    },
+    actions: {
+      asyncGetGoodsPicsList(context) {
+        let result = [];
+        // vuex中无法直接使用$api对象，此处手动引入api
+        // this.$api. 
+        api.showGoodsPicsList({
+            goodsId: context.state.goodsId,
+          })
+          .then((res) => {
+            // console.log(res);
+            // 从后台数据库获取已上传的图片列表
+            if (res.data.code === 1) {
+              res.data.list.forEach((element) => {
+                result.push({ ...element, name: element.originalname });
+              });
+              context.commit("changeFileList", result);
+            } else {
+              console.log("0");
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      },
+    },
+  };
+  ```
+
+  ==注意==：
+
+  1. vuex中无法直接使用$api对象，此处手动引入api。
+
+  2. 包含异步请求的处理函数必须写在actions内，并使用 `context.commit` 来修改state（vuex第一原则：**state只能通过提交mutation修改！**）
+
+     > Action 函数接受一个与 store 实例具有相同方法和属性的 context 对象，因此你可以调用 `context.commit` 提交一个 mutation，或者通过 `context.state` 和 `context.getters` 来获取 state 和 getters。 
+
+- 删除图片功能
+
+  前端
+
+  ```js
+  // CommonUpload.vue
+  // 移除文件列表文件时的钩子
+  handleRemove(file, fileList) {
+    console.log(file);
+    this.$api
+      .removeGoodsPics({ name: file.picname })
+      .then((res) => {
+        // console.log(res);
+        if (res.data.code === 1) {
+          this.$message.success("删除成功！");
+        } else {
+          this.$message.error("删除失败！");
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  },
+  ```
+
+  后端
+
+  ```js
+  // Mall.js
+  /**
+   * 删除已上传的图片
+   */
+  router.get("/removeGoodsPics", (req, res) => {
+    const sql = `delete from goodspic where picname='${req.query.name}'`;
+    console.log(req.query);
+    db.queryDB(sql, (err, data) => {
+      if (err) {
+        console.log(`query error: ${err}`);
+        return;
+      } else {
+        // 使用fs删除文件
+        //    注意：nodejs中使用相对路径是不可靠的，尽量使用__dirname
+        fs.unlink(path.join(__dirname, `../upload/${req.query.name}`), (e) => {});
+        // 打印日志
+        logger.info(
+          `[${req.method}-${res.statusMessage}-${req.originalUrl}]: 删除图片:${req.query.name} `
+        );
+        return res.json({
+          code: 1,
+          method: "GET",
+        });
+      }
+    });
+  });
+  ```
+
+  ==注意==：nodejs中使用相对路径是不可靠的，尽量使用`__dirname`和`path.jion`组合成绝对路径
