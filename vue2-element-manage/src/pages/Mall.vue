@@ -96,7 +96,7 @@ export default {
         {
           model: "description",
           label: "商品描述",
-          type: "input",
+          type: "editor",
         },
       ],
       //   级联选择器
@@ -349,7 +349,7 @@ export default {
       this.operateForm = row;
       this.goodsId = row.id;
       this.$store.commit('changeGoodsId', this.goodsId)   // 使用vuex管理当前点击的商品id
-      this.$store.dispatch('asyncGetGoodsPicsList')
+      this.$store.dispatch('asyncGetGoodsPicsList')   // 异步获取图片列表
     },
     // 删除商品项
     deleteGood(row) {

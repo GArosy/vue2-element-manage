@@ -5,6 +5,7 @@
       :key="item.label"
       :label="item.label"
     >
+    <!-- 输入框 -->
       <el-input
         v-if="item.type === 'input'"
         :placeholder="`请输入${item.label}`"
@@ -12,6 +13,10 @@
         clearable
       >
       </el-input>
+      <!-- 富文本编译器 -->
+      <wang-editor v-if="item.type === 'editor'">
+        
+      </wang-editor>
       <el-switch v-if="item.type === 'switch'" v-model="form[item.model]">
       </el-switch>
       <!-- 级联选择器 -->
@@ -56,11 +61,13 @@
 
 <script>
 import CommonUpload from "./CommonUpload.vue";
+import WangEditor from './WangEditor.vue';
 
 export default {
   name: "CommonForm",
   components: {
     CommonUpload,
+    WangEditor
   },
   props: {
     formLabel: Array,
