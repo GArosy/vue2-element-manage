@@ -2,26 +2,22 @@
   <el-upload
     accept="image/jpeg,image/gif,image/png"
     class="upload"
-    style="width: 220px"
     ref="upload"
-    drag
     action=""
     :http-request="uploadRequest"
     :on-remove="handleRemove"
     :file-list="fileList"
+    list-type="picture"
     :auto-upload="true"
   >
-    <i class="el-icon-upload"></i>
-    <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-    <div class="el-upload__tip" slot="tip">
-      只能上传jpg/png文件，且不超过500kb
+    <el-button size="small" type="primary">点击上传</el-button>
+    <div slot="tip" class="el-upload__tip">
+      只能上传jpg/png/gif文件，且不超过1MB
     </div>
   </el-upload>
 </template>
 
 <script>
-import uuid from "../utils/uuid";
-
 export default {
   name: "CommonUpload",
   data() {
@@ -42,23 +38,25 @@ export default {
         file.type === "image/gif";
       const isLimit1M = file.size / 1024 / 1024 < 1;
       if (!isImage) {
+        this.$store.dispatch("asyncGetGoodsPicsList");
         this.$message.error("上传文件格式错误！");
         return false;
       }
       if (!isLimit1M) {
+        this.$store.dispatch("asyncGetGoodsPicsList");
         this.$message.error("上传文件大小不能超过1MB");
         return false;
       }
 
       let formData = new FormData();
-      formData.append("id", uuid()); // 生成唯一id作为图片名
       formData.append("goodsId", this.getGoodsId); // 商品id
       formData.append("file", file);
 
       this.$api
         .uploadPics(formData)
-        .then((result) => {
-          if (result.data.res_code === "1") {
+        .then((res) => {
+          console.log("后台上传图片接口传回的数据", res);
+          if (res.data.res_code === "1") {
             this.$message.success("上传成功！");
           } else {
             this.$message.error("上传失败！");
@@ -70,11 +68,11 @@ export default {
     },
     // 移除文件列表文件时的钩子
     handleRemove(file, fileList) {
-      console.log(file);
+      console.log("点击列表图片发出的请求体", file);
       this.$api
-        .removeGoodsPics({ name: file.picname })
+        .removeGoodsPics({ name: file.name })
         .then((res) => {
-          // console.log(res);
+          console.log("后台删除图片接口传回的query", res.data.query);
           if (res.data.code === 1) {
             this.$message.success("删除成功！");
           } else {
@@ -98,11 +96,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/deep/ .el-upload {
-  width: 100%;
-}
-/deep/ .el-upload-dragger {
-  width: 100%;
-  height: 160px;
-}
+// /deep/ .el-upload {
+//   width: 100%;
+// }
+// /deep/ .el-upload-dragger {
+//   width: 100%;
+//   height: 160px;
+// }
 </style>
