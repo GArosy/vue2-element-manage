@@ -8,12 +8,9 @@ export default {
   mutations: {
     changeGoodsId(state, id) {
       state.goodsId = id;
-      console.log(state.goodsId);
-      console.log(state.fileList);
     },
     changeFileList(state, list) {
       state.fileList = list;
-      console.log(state.fileList);
     },
   },
   actions: {
