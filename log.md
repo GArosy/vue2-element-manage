@@ -3932,3 +3932,145 @@ server {
   ```
 
   ==注意==：nodejs中使用相对路径是不可靠的，尽量使用`__dirname`和`path.jion`组合成绝对路径
+
+## 8-23
+
+==BUG==：之前上传图片的请求中我使用了手动生成的uuid，这造成了一个问题：在添加商品弹窗中对刚刚上传的图片进行删除时，删除请求会失效。原因是删除接口需要获取fileList中图片的uuid，而它是后台存入数据库的，对于刚上传的图片来说并不存在这一属性！
+
+我尝试新上传图片后点击删除图片，发现发送给后端的请求体file打印为：
+
+```json
+{
+    "status": "ready",
+    "name": "图片.jpg",
+    "size": 83749,
+    "percentage": 0,
+    "uid": 1661328366444,
+    "raw": File,
+    "url": "blob:http://localhost:8080/6a627c78-a059-4b99-89b0-b0340b8549a3"
+}
+```
+
+如果想实现检索到后端数据库中的图片并删除，只能依靠这些字段。但看起来其中有效的只有`name`和`uid`，`name`在转为FormData传给后端之后会被multer变为 `originalname` ，致命的是文件名包含中文会有乱码，暂时不考虑。
+
+因此，我尝试了使用请求自带的uid作为图片的key并以此命名图片，但发现uid会随着请求变化，依赖后发送的请求uid并不能检索到后台的图片……
+
+
+
+**新功能**
+
+图片列表图片回显
+
+- 上传图片时将图片url加入数据库，传回数据的url字段会被elementui自动渲染为图片
+
+  ```
+  http://${host}:3000/static/${req.file.filename}
+  ```
+
+- 在后台项目中挂载静态资源upload文件夹
+
+  ```js
+  // app.js
+  app.use("/static", express.static("upload"));
+  ```
+
+  
+
+富文本编译器
+
+使用wangEditor：
+
+>  [wangEditor](https://www.wangeditor.com/v5/getting-started.html) 
+
+- npm安装
+
+- 新建wangeditor组件作为CommonForm子组件
+
+  - 在组件生命周期中创建编译器
+
+    ```
+    
+    ```
+
+    
+
+## 8-24
+
+为解决昨天的bug，我只能尝试先解决乱码的问题。用了一整天时间排除了各个环节的问题之后，基本锁定这是multer中间件的问题：文件的`name`属性经过multer会转为`originalname`，而它的编码默认为`latin1`，这是乱码的根源所在。github上有不少国人提了issue（ [Wrong encoding in originalname containing unicode characters · Issue #962 · expressjs/multer (github.com)](https://github.com/expressjs/multer/issues/962) ）。
+
+直到我在multer的github中发现今年6月有人提了一个PR [ Pull Request #1102 · expressjs/multer (github.com)](https://github.com/expressjs/multer/pull/1102) 提议修复此问题。在评论区PR提出者通过配置multer的`fileFilter`暂时修复了这个问题：
+
+```js
+function fileFilter(req, file, cb) {
+  file.originalname = Buffer.from(file.originalname, "latin1").toString("utf8");
+  cb(null, true);
+}
+const upload = multer({ storage: storage, fileFilter });
+```
+
+`fileFilter`是multer的配置项之一（还包含 limits、preservePath 和 storage ），它本用于控制储存文件的条件。通过在其中操作Buffer对file的相应属性进行转码，巧妙实现了在储存之前处理文件名避免乱码的效果。 [expressjs/multer: Node.js middleware for handling `multipart/form-data`. (github.com)](https://github.com/expressjs/multer#multeropts) 
+
+关于multer的编码问题，我还了解到，multer是基于busboy开发的，而考虑到浏览器并不总是支持utf8编码的header，busboy的维护者将默认编码从utf8改为latin7，但允许开发者更改此项设置。而multer的维护者并没有将默认编码改回utf8，甚至不允许开发者修改编码方式，直到现在这一PR依然没有被merge。信息来源 [Fix UTF-8 file name encoding for uploads (fixes #3013) by eliandoran · Pull Request #3058 · zadam/trilium (github.com)](https://github.com/zadam/trilium/pull/3058) 。
+
+
+
+有了正确originalname的支持，之前的代码会变得很简单
+
+```js
+/**
+ * 上传图片
+ */
+router.post("/uploadGoodsPics", upload.single("file"), (req, res) => {
+  // 使用json解析FormData数据
+  const { originalname, size } = JSON.parse(
+    JSON.stringify(req.file)
+  );
+  const goodsId = JSON.parse(JSON.stringify(req.body.goodsId));
+
+  // 图片信息储存至数据库
+  let sql_code = "0";
+  const sql = `insert into goodspic values ('${goodsId}','${req.file.originalname}','${req.file.mimetype}','${req.file.size}','http://${host}:3000/static/${req.file.filename}')`;
+  db.queryDB(sql, (err, data) => {
+    if (err) {
+      console.log(`query error: ${err}`);
+      return;
+    } else {
+      sql_code = "1";
+    }
+  });
+
+  return res.json({
+    res_code: "1",
+    sql_code,
+    originalname,
+    size,
+    url: `http://${host}:3000/static/${req.file.filename}`
+  });
+});
+
+/**
+ * 删除已上传的图片
+ */
+router.get("/removeGoodsPics", (req, res) => {
+  const sql = `delete from goodspic where originalname='${req.query.name}'`;
+
+  db.queryDB(sql, (err, data) => {
+    if (err) {
+      console.log(`query error: ${err}`);
+      return;
+    } else {
+      // 使用fs删除文件
+      fs.unlink(
+        path.join(__dirname, `../upload/${req.query.name}`),
+        (e) => {}
+      );
+      return res.json({
+        code: 1,
+        method: "GET",
+        query: req.query,
+      });
+    }
+  });
+});
+```
+
