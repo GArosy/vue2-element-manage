@@ -103,4 +103,7 @@ export default {
 //   width: 100%;
 //   height: 160px;
 // }
+/deep/ .el-upload-list__item {
+  transition: none
+}
 </style>
