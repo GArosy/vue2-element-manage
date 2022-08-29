@@ -94,7 +94,7 @@ export default {
           type: "upload",
         },
         {
-          model: "description",
+          model: "descText",
           label: "商品描述",
           type: "editor",
         },
@@ -207,13 +207,13 @@ export default {
               value: "箱包",
               label: "箱包",
             },
-          ]
+          ],
         },
       ],
       //   填写内容
       operateForm: {},
       //   商品id
-      goodsId: '',
+      goodsId: "",
 
       // 搜索组件
       searchFormLabel: [
@@ -244,26 +244,26 @@ export default {
         {
           prop: "price",
           label: "商品价格",
-          width: 100
+          width: 100,
         },
         {
           prop: "amount",
           label: "商品数量",
-          width: 100
+          width: 100,
         },
         {
           prop: "type",
           label: "商品类目",
-          width: 150
+          width: 150,
         },
         {
           prop: "photo",
           label: "商品图片",
         },
         {
-          prop: "description",
+          prop: "descText",
           label: "商品描述",
-          width: 'auto',
+          width: "auto",
         },
       ],
       //   分页
@@ -318,10 +318,11 @@ export default {
         amount: "",
         type: "",
         photo: "",
-        description: "",
+        descText: "",
+        descHtml: "",
       };
       this.goodsId = row.id;
-      this.$store.commit('changeGoodsId', this.goodsId)   // 使用vuex管理当前点击的商品id
+      this.$store.commit("changeGoodsId", this.goodsId); // 使用vuex管理当前点击的商品id
     },
     // 获取商品列表
     getList(name = "") {
@@ -347,9 +348,10 @@ export default {
       this.operateType = "edit";
       this.isShow = true;
       this.operateForm = row;
+      // console.log("Mall.vue\n", this.operateForm.descText,'\n',this.operateForm.descHtml);
       this.goodsId = row.id;
-      this.$store.commit('changeGoodsId', this.goodsId)   // 使用vuex管理当前点击的商品id
-      this.$store.dispatch('asyncGetGoodsPicsList')   // 异步获取图片列表
+      this.$store.commit("changeGoodsId", this.goodsId); // 使用vuex管理当前点击的商品id
+      this.$store.dispatch("asyncGetGoodsPicsList"); // 异步获取图片列表
     },
     // 删除商品项
     deleteGood(row) {
@@ -395,13 +397,16 @@ export default {
     //   );
     // },
 
-    // 上传图片 
+    // 上传图片
     // onUploadChange() {
     //   this.$api.uploadPics({})
     // },
     // submitUpload() {
     //   console.log('submit');
     // }
+  },
+  computed: {
+    
   },
   created() {
     // 页面加载时即调用
