@@ -5,7 +5,7 @@
       :key="item.label"
       :label="item.label"
     >
-    <!-- 输入框 -->
+      <!-- 输入框 -->
       <el-input
         v-if="item.type === 'input'"
         :placeholder="`请输入${item.label}`"
@@ -14,8 +14,11 @@
       >
       </el-input>
       <!-- 富文本编译器 -->
-      <wang-editor v-if="item.type === 'editor'">
-        
+      <wang-editor
+        v-if="item.type === 'editor'"
+        :value="form.descHtml"
+        @send="send"
+      >
       </wang-editor>
       <el-switch v-if="item.type === 'switch'" v-model="form[item.model]">
       </el-switch>
@@ -48,9 +51,7 @@
           :value="optItem.value"
         ></el-option>
       </el-select>
-      <common-upload
-        v-if="item.type === 'upload'"
-      ></common-upload>
+      <common-upload v-if="item.type === 'upload'"></common-upload>
     </el-form-item>
     <!-- 如果以上组件都不满足，使用自定义插槽 -->
     <el-form-item>
@@ -61,13 +62,13 @@
 
 <script>
 import CommonUpload from "./CommonUpload.vue";
-import WangEditor from './WangEditor.vue';
+import WangEditor from "./WangEditor.vue";
 
 export default {
   name: "CommonForm",
   components: {
     CommonUpload,
-    WangEditor
+    WangEditor,
   },
   props: {
     formLabel: Array,
@@ -76,8 +77,13 @@ export default {
     inline: Boolean,
   },
   data() {
-    return {
-    };
+    return {};
+  },
+  methods: {
+    send(val) {
+      this.form.descText = val.text;
+      this.form.descHtml = val.html;
+    },
   },
 };
 </script>
