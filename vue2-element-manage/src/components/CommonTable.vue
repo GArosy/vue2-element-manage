@@ -29,13 +29,13 @@
           >
         </template>
       </el-table-column>
-      <!-- 分页组件 -->
-      <!-- 
-        通过 layout attribute 配置组件内容 
-        通过 @current-change 事件和 :current-page.sync 属性来处理当前页变动
-        :page-size 每页显示条目个数
-      -->
     </el-table>
+    <!-- 分页组件 -->
+    <!-- 
+      通过 layout attribute 配置组件内容 
+      通过 @current-change 事件和 :current-page.sync 属性来处理当前页变动
+      :page-size 每页显示条目个数
+    -->
     <el-pagination
       class="pager"
       layout="total,prev,pager,next"
