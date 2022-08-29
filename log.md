@@ -4128,3 +4128,78 @@ router.get("/removeGoodsPics", (req, res) => {
 ## 8-25
 
 改变8-23富文本编译器版本
+
+## 8-29
+
+完善富文本编译器
+
+- 配置菜单栏
+
+  ```
+  toolbarConfig: {
+    // 菜单栏配置
+    toolbarKeys: [
+      "bold",
+      "italic",
+      "underline",
+      "color",
+      "headerSelect",
+      "|",
+      "justifyLeft",
+      "justifyCenter",
+      "justifyRight",
+      "divider",
+      "|",
+      "clearStyle",
+      "undo",
+      "redo",
+      "fullScreen",
+    ],
+  },
+  ```
+
+- 添加onchange处理函数，将编译器中的内容发送至父组件
+
+  为使html代码和商品列表中显示的商品描述（纯文本）分离，原有的description属性更新为descText和descHtml两者独立显示。
+
+  ```js
+  onChange(editor) {
+    this.text = editor.getText();
+    this.$emit("sendHtml", { html: this.html, text: this.text });
+  },
+  ```
+
+- 为使表格中的商品描述内容与编译器中显式的内容同步，需要将后台请求的商品描述数据传入wangeditor组件，并加入侦听属性中实现动态更新：
+
+  ```js
+  // WangEditor.vue
+  props: { value: String },
+  // ...
+  watch: {
+    value(newVal, oldVal) {
+      this.html = newVal;
+    },
+  },
+  ```
+
+- 在父组件中使用组件
+
+  ```vue
+  // CommonForm.vue
+  <wang-editor
+    v-if="item.type === 'editor'"
+    // 这里不使用v-model
+    :value="form.descHtml"
+    @send="send"
+  >
+  </wang-editor>
+    // ...
+  methods: {
+    send(val) {
+      this.form.descText = val.text;
+      this.form.descHtml = val.html;
+    },
+  },
+  ```
+
+  
