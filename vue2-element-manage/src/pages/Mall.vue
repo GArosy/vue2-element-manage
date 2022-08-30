@@ -89,14 +89,14 @@ export default {
           type: "cascader",
         },
         {
-          model: "photo",
-          label: "商品图片",
-          type: "upload",
-        },
-        {
           model: "descText",
           label: "商品描述",
           type: "editor",
+        },
+        {
+          model: "photo",
+          label: "商品图片",
+          type: "upload",
         },
       ],
       //   级联选择器
@@ -257,10 +257,6 @@ export default {
           width: 150,
         },
         {
-          prop: "photo",
-          label: "商品图片",
-        },
-        {
           prop: "descText",
           label: "商品描述",
           width: "auto",
@@ -317,7 +313,6 @@ export default {
         price: "",
         amount: "",
         type: "",
-        photo: "",
         descText: "",
         descHtml: "",
       };
@@ -397,16 +392,14 @@ export default {
     //   );
     // },
 
-    // 上传图片
-    // onUploadChange() {
-    //   this.$api.uploadPics({})
+    /**
+     * 预览图片
+     */
+    // previewPics(row) {
+    //   this.$store.commit("changeGoodsId", row.id);
+    //   this.$store.dispatch("asyncGetGoodsPicsList");
+    //   console.log('2');
     // },
-    // submitUpload() {
-    //   console.log('submit');
-    // }
-  },
-  computed: {
-    
   },
   created() {
     // 页面加载时即调用
