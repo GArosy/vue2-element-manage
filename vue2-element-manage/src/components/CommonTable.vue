@@ -8,11 +8,41 @@
         :label="item.label"
         :width="item.width ? item.width : 125"
         show-overflow-tooltip
-        style="margin-left: 10px;"
+        style="margin-left: 10px"
       >
         <!-- 作用域插槽 -->
         <template v-slot:default="slotProps">
           <span>{{ slotProps.row[item.prop] }}</span>
+        </template>
+      </el-table-column>
+
+      <!-- 图片预览 -->
+      <el-table-column label="商品图片" width="80">
+        <template v-slot:default="operate">
+          <el-popover
+            placement="bottom"
+            width="200"
+            trigger="click"
+            content="暂无图片"
+          >
+            <el-carousel
+              trigger="click"
+              height="180px"
+              :autoplay="false"
+              :loop="false"
+              indicator-position="outside"
+            >
+              <el-carousel-item v-for="(item, index) in urls" :key="index">
+                <el-image :src="item" fit="contain"></el-image>
+              </el-carousel-item>
+            </el-carousel>
+            <el-button
+              size="mini"
+              slot="reference"
+              @click="handlePreview(operate.row)"
+              >预览</el-button
+            >
+          </el-popover>
         </template>
       </el-table-column>
       <!-- 操作列 -->
@@ -56,7 +86,9 @@ export default {
     config: Object,
   },
   data() {
-    return {};
+    return {
+      urls: [],
+    };
   },
   methods: {
     handleEdit(row) {
@@ -67,6 +99,25 @@ export default {
     },
     changePage(page) {
       this.$emit("changePage", page);
+    },
+    handlePreview(row) {
+      // 清空urls
+      this.urls = []
+      this.$store.commit("changeGoodsId", row.id);
+      this.$store.dispatch("asyncGetGoodsPicsList");
+    },
+  },
+  computed: {
+    getfileList() {
+      return this.$store.state.Mall.fileList;
+    },
+  },
+  // fileList是由vuex异步加载的，组件渲染时state为空，需要额外监听vuex中的state
+  watch: {
+    getfileList(val) {
+      val.forEach((element) => {
+        this.urls.push(element.url);
+      });
     },
   },
 };
