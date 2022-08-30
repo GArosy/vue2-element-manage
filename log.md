@@ -1744,7 +1744,7 @@ yarn upgrade element-ui@2.15.8
   </el-table-column>
   ```
 
-  将 `v-slot:default="operate"` 作为具名插槽，可向父组件事件传参，将表格内的数据传入父组件
+  将 `v-slot:default="operate"` 作为作用域插槽，其中 `operate` 即为 `插槽prop`，可通过它访问table的row, column, $index 和 store（table 内部的状态管理）数据。
 
 ## 7-11
 
@@ -4202,4 +4202,118 @@ router.get("/removeGoodsPics", (req, res) => {
   },
   ```
 
+
+## 8-30
+
+图片预览功能
+
+- 在CommonTable组件中加入预览图片的列，并在其中使用elementui的弹出框popover。使用v-slot作用域插槽获取table当前行的信息
+
+  ```html
+  <!-- 图片预览 -->
+  <el-table-column label="商品图片" width="80">
+    <template v-slot:default="operate">
+      <el-popover
+        placement="bottom"
+        width="200"
+        trigger="click"
+        content="暂无图片"
+      >
+        <el-button
+          size="mini"
+          slot="reference"
+          @click="handlePreview(operate.row)"
+          >预览</el-button
+        >
+      </el-popover>
+    </template>
+  </el-table-column>
+  ```
+
+- 在弹出框中使用轮播图
+
+  ```html
+  <el-carousel
+    trigger="click"
+    height="180px"
+    :autoplay="false"
+    :loop="false"
+    indicator-position="outside"
+  >
+    <el-carousel-item v-for="(item, index) in urls" :key="index">
+      <el-image :src="item" fit="contain"></el-image>
+    </el-carousel-item>
+  </el-carousel>
+  ```
+
+  其中urls为vuex的state `fileList` 中的内容，可直接为弹出框的点击事件绑定一个更新state `fileList` 的处理函数 `handlePreview()` ，传入当前table行的id数据，异步更新vuex中的fileList。
+
+  ```js
+  handlePreview(row) {
+    // 清空urls
+    this.urls = []
+    this.$store.commit("changeGoodsId", row.id);
+    this.$store.dispatch("asyncGetGoodsPicsList");
+  },
+  ```
+
+  但直接这样做是不起作用的，原因在于vuex的更新请求是异步完成的，弹出框组件渲染完成之后fileList才会更新。这时 `$nextTick` `async await` 等异步处理方式都不起作用。我们可以用监听vuex state的方式，等fieList改变之后再对urls数据作处理：
+
+  ```js
+  // CommonTable.vue
+  computed: {
+    getfileList() {
+      return this.$store.state.Mall.fileList;
+    },
+  },
+  // fileList是由vuex异步加载的，组件渲染时state为空，需要额外监听vuex中的state
+  watch: {
+    getfileList(val) {
+      val.forEach((element) => {
+        this.urls.push(element.url);
+      });
+    },
+  },
+  ```
+
+  这时点击预览按钮就会更新轮播图内容了。
+
   
+
+==BUG==：遇到了数据库连接过多的问题
+
+```
+code: 'ER_CON_COUNT_ERROR',
+errno: 1040,
+sqlMessage: 'Too many connections', 
+```
+
+先登录数据库查看连接情况
+
+>  [查看mysql连接数和状态 - 小白827 - 博客园 (cnblogs.com)](https://www.cnblogs.com/pegasus827/p/8692290.html) 
+
+```
+mysql -uroot -p
+show status like 'Connections'
+show status like 'Threads_connected'
+```
+
+发现有很多休眠的连接未释放！
+
+MySQL 数据库有一个属性 wait_timeout 就是 sleep 连接最大存活时间，默认是 28800 s，换算成小时就是 8 小时，严重影响性能
+
+查看休眠存活时间
+
+```
+show global variables like '%wait_timeout';
+
+# 显示 wait_timeout             | 28800  
+```
+
+修改为600s
+
+```
+set GLOBAL  wait_timeout=600;
+```
+
+现在休眠超过10min的连接会自动被清理
