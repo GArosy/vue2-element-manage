@@ -19,23 +19,24 @@
       <!-- 图片预览 -->
       <el-table-column label="商品图片" width="80">
         <template v-slot:default="operate">
-          <el-popover
-            placement="bottom"
-            width="200"
-            trigger="click"
-            content="暂无图片"
-          >
+          <el-popover placement="bottom" width="200" trigger="click">
+            <!-- 轮播图 -->
             <el-carousel
               trigger="click"
               height="180px"
               :autoplay="false"
               :loop="false"
               indicator-position="outside"
+              v-if="isShow"
             >
               <el-carousel-item v-for="(item, index) in urls" :key="index">
-                <el-image :src="item" fit="contain"></el-image>
+                <el-image :src="item" fit="contain"> </el-image>
               </el-carousel-item>
             </el-carousel>
+            <!-- 占位 -->
+            <div v-else class="popover-placeholder">
+              <p>暂无图片</p>
+            </div>
             <el-button
               size="mini"
               slot="reference"
@@ -88,6 +89,7 @@ export default {
   data() {
     return {
       urls: [],
+      isShow: true,
     };
   },
   methods: {
@@ -102,7 +104,7 @@ export default {
     },
     handlePreview(row) {
       // 清空urls
-      this.urls = []
+      this.urls = [];
       this.$store.commit("changeGoodsId", row.id);
       this.$store.dispatch("asyncGetGoodsPicsList");
     },
@@ -118,7 +120,15 @@ export default {
       val.forEach((element) => {
         this.urls.push(element.url);
       });
+      this.isShow = !(this.urls.length == 0);
     },
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.popover-placeholder {
+  color: #aaa;
+  text-align: center;
+}
+</style>
