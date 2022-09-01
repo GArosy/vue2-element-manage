@@ -4317,3 +4317,46 @@ set GLOBAL  wait_timeout=600;
 ```
 
 现在休眠超过10min的连接会自动被清理
+
+
+
+## 9-1
+
+商品无可预览图片加入暂无图片占位文字
+
+- 模板中加入v-if-else判断
+
+  ```html
+  <!-- 轮播图 -->
+  <el-carousel
+    trigger="click"
+    height="180px"
+    :autoplay="false"
+    :loop="false"
+    indicator-position="outside"
+    v-if="isShow"
+  >
+    <el-carousel-item v-for="(item, index) in urls" :key="index">
+      <el-image :src="item" fit="contain"> </el-image>
+    </el-carousel-item>
+  </el-carousel>
+  <!-- 占位 -->
+  <div v-else class="popover-placeholder">
+    <p>暂无图片</p>
+  </div>
+  ```
+
+- 在侦听器中监听urls是否存在内容，决定显示内容
+
+  ```js
+  watch: {
+    getfileList(val) {
+      val.forEach((element) => {
+        this.urls.push(element.url);
+      });
+      this.isShow = !(this.urls.length == 0);
+    },
+  },
+  ```
+
+  
