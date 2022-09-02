@@ -1,8 +1,16 @@
 <template>
   <div class="manage">
     <!-- 添加/编辑用户对话框 -->
-    <el-dialog :title="operateType === 'add' ? '新增用户' : '更新用户'" :visible.sync="isShow">
-      <common-form :formLabel="operateFormLabel" :form="operateForm" :inline="true" ref="form"></common-form>
+    <el-dialog
+      :title="operateType === 'add' ? '新增用户' : '更新用户'"
+      :visible.sync="isShow"
+    >
+      <common-form
+        :formLabel="operateFormLabel"
+        :form="operateForm"
+        :inline="true"
+        ref="form"
+      ></common-form>
       <div class="dialog-footer">
         <el-button @click="isShow">取消</el-button>
         <el-button @click="confirm" type="primary">确定</el-button>
@@ -11,13 +19,27 @@
     <!-- 1. 搜索框 -->
     <div class="manage-header">
       <el-button type="primary" @click="addUser">+ 新增</el-button>
-      <common-form :formLabel="formLabel" :form="searchForm" :inline="true" ref="searchForm">
-        <el-button type="primary" @click="getList(searchForm.keyword)">搜索</el-button>
+      <common-form
+        :formLabel="formLabel"
+        :form="searchForm"
+        :inline="true"
+        ref="searchForm"
+      >
+        <el-button type="primary" @click="getList(searchForm.keyword)"
+          >搜索</el-button
+        >
       </common-form>
     </div>
     <!-- 2. 表格区域 -->
-    <common-table :tableData="tableData" :tableLabel="tableLabel" :config="config" @changePage="getList()"
-      @edit="editUser" @delete="deleteUser">
+    <common-table
+      :tableData="tableData"
+      :tableLabel="tableLabel"
+      :config="config"
+      :tableType="tableType"
+      @changePage="getList()"
+      @edit="editUser"
+      @delete="deleteUser"
+    >
     </common-table>
   </div>
 </template>
@@ -99,6 +121,7 @@ export default {
       },
 
       // Table数据
+      tableType: 'user',
       tableData: [],
       //   表头
       tableLabel: [
@@ -125,7 +148,7 @@ export default {
       config: {
         page: 1,
         total: 30,
-        loading: false
+        loading: false,
       },
     };
   },
@@ -181,8 +204,6 @@ export default {
       this.operateType = "edit";
       this.isShow = true;
       this.operateForm = row;
-      console.log(`编辑项:${row.name} ${row.id}`);
-
     },
     // 删除用户项
     deleteUser(row) {

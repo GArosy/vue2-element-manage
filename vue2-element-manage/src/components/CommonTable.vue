@@ -15,9 +15,10 @@
           <span>{{ slotProps.row[item.prop] }}</span>
         </template>
       </el-table-column>
+      <slot ></slot>
 
       <!-- 图片预览 -->
-      <el-table-column label="商品图片" width="80">
+      <el-table-column label="商品图片" width="80" v-if="tableType === 'mall'">
         <template v-slot:default="operate">
           <el-popover placement="bottom" width="200" trigger="click">
             <!-- 轮播图 -->
@@ -82,6 +83,7 @@
 export default {
   name: "CommonTable",
   props: {
+    tableType: String,
     tableData: Array,
     tableLabel: Array,
     config: Object,

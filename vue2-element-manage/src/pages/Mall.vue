@@ -37,6 +37,7 @@
       :tableData="tableData"
       :tableLabel="tableLabel"
       :config="config"
+      :tableType="tableType"
       @changePage="getList()"
       @edit="editGood"
       @delete="deleteGood"
@@ -228,6 +229,7 @@ export default {
       },
 
       // Table数据
+      tableType: 'mall',
       tableData: [],
       //   表头
       tableLabel: [
