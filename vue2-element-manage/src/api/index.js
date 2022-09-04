@@ -6,6 +6,20 @@ import axios from "./axios";
 import base from "./base";
 
 const api = {
+  register(params) {
+    return axios.request({
+      url: base.register,
+      method: "POST",
+      params,
+    });
+  },
+  login(params) {
+    return axios.request({
+      url: base.login,
+      method: "GET",
+      params,
+    });
+  },
   getGoods(params) {
     return axios.request({
       url: base.goodsList,
