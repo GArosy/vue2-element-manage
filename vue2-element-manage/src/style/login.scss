@@ -20,8 +20,12 @@
       margin: 1.8rem auto 0;
       text-align: center;
       .el-form-item__content {
+        display: inline-block;
         margin: auto !important;
       }
+    }
+    .el-button + .el-button {
+      margin-left: 1rem;
     }
   }
 }

@@ -42,16 +42,13 @@
           show-password
         ></el-input>
       </el-form-item>
-      <!-- 登录按钮 -->
-      <el-form-item class="login-submit">
-        <el-button
-          type="primary"
-          @click="login"
-          class="login-submit"
-          style="margin: auto"
-          >登录</el-button
-        >
-      </el-form-item>
+      <div class="login-submit">
+        <!-- 按钮 -->
+        <el-form-item>
+          <el-button @click="register">注册</el-button>
+          <el-button type="primary" @click="login">登录</el-button>
+        </el-form-item>
+      </div>
     </el-form>
   </div>
 </template>
@@ -65,7 +62,10 @@ export default {
   name: "Login",
   data() {
     return {
-      form: {},
+      form: {
+        userName: "",
+        password: "",
+      },
       // 校验规则
       rules: {
         userName: [
@@ -118,15 +118,15 @@ export default {
    * 3. 监听键盘来触发登录事件
    */
   created() {
-    window.addEventListener(
-      "keydown",
-      (e) => {
-        if (e.key === "Enter") {
-          console.log(e);
-          this.login();
-        } else return
-      }
-    );
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        console.log(e);
+        this.login();
+      } else return;
+    });
   },
 };
 </script>
+
+<style lang="scss" scoped>
+</style>

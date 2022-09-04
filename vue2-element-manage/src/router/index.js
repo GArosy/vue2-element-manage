@@ -13,6 +13,7 @@ const routes = [
     name: "layout",
     component: () => import("@/pages/Layout/index.vue"),
     // 路由元信息：是否需要登录
+    // 放在根目录下，表示所有页面都需要登录
     meta: { requiresAuth: true },
     // 路由嵌套
     children: [
@@ -82,32 +83,19 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   console.log("from", from, "\n", "to", to);
   // 获取已保存的cookie，页面刷新后可以保留登录状态
-  // store.commit("getToken");
-  // const token = store.state.User.token;
-  // 1. 判断是否需要登录
+  store.commit("getToken");
+  // 1. 判断要跳转的页面是否需要登录
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    console.log('需要登录');
-    // 2. 判断是否需要登录
-    let token = false;
-    if (token == true) {
-      console.log('token true');
+    // 2. 判断用户是否已经登录
+    const token = store.state.User.token;
+    if (token) {
       next()
     } else {
       next({name: 'login'})
     }
   } else {  // 不需要登录
-    console.log('不需要登录');
     next()
   }
-  // 如果token不存在，且跳转页为，则导航至登录页
-  // if (!token && to.name !== "login") {
-  //   next({ name: "login" });
-  //   // 如果token存在，且当前页为登录页（已登录状态），则导航至首页
-  // } else if (token && to.name === "login") {
-  //   next({ name: "home" });
-  // } else {
-  //   next();
-  // }
 });
 
 // 导出
