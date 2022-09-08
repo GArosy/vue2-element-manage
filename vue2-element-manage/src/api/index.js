@@ -16,7 +16,7 @@ const api = {
   login(params) {
     return axios.request({
       url: base.login,
-      method: "GET",
+      method: "POST",
       params,
     });
   },

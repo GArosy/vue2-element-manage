@@ -6,7 +6,7 @@ const base = {
   // 用户注册
   register: "/user/register",
   // 用户登录
-  register: "/user/login",
+  login: "/user/login",
 
   // 商品列表
   goodsList: "/mall/getGoods",
