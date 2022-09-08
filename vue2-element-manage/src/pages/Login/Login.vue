@@ -82,7 +82,7 @@ export default {
           {
             min: 4,
             max: 18,
-            message: "密码长度应在4-10位之间",
+            message: "密码长度应在4-18位之间",
             trigger: "blur",
           },
         ],
@@ -104,11 +104,32 @@ export default {
           this.$message.error(res.data.data.message);
         }
       });
-      // 点击登陆后，使用Mock模拟后台提供token
-      // const token = Mock.Random.guid();
-      // this.$store.commit("setToken", token);
-      // this.$router.push({ name: "home" });
     },
+    register() {
+      const { userName, password } = this.form;
+      this.$api
+        .register({ userName, password })
+        .then((res) => {
+          if (res.data.code === 1) {
+            this.$message.success('注册成功');
+          } else if (res.data.code === -1) {
+            this.$message.error('注册失败');
+          } else if (res.data.code === 0) {
+            this.$message.error('用户名已存在');
+          } 
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    login() {
+      const { userName, password } = this.form;
+      this.$api.login({ userName, password })
+      .then((res)=>{
+        console.log(res);
+        let token = res.data.data;
+      })
+    }
   },
   /**
    *    实现回车提交
@@ -128,5 +149,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
