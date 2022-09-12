@@ -20,6 +20,12 @@ import "@/api/mockServer/mock";
 // 引入api
 import api from "./api/index";
 
+// 用户信息持久化
+let user = localStorage.getItem('user')
+if (user) {
+  store.commit('User/setUserInfo', JSON.parse(user))
+}
+
 Vue.config.productionTip = false;
 
 Vue.use(ElementUI);

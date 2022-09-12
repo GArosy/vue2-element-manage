@@ -55,7 +55,9 @@
 
 <script>
 // import Mock from "mockjs";
+import jwtDecode from "jwt-decode";
 import { getMenu } from "@/api/mockServer/index";
+import { mapMutations } from "vuex";
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -90,33 +92,35 @@ export default {
     };
   },
   methods: {
-    login() {
-      // 调用后台接口
-      getMenu(this.form).then((res) => {
-        if (res.data.code === 20000) {
-          this.$store.commit("clearMenu");
-          this.$store.commit("setMenu", res.data.data.menu);
-          this.$store.commit("setToken", res.data.data.token);
-          this.$store.commit("addMenu", this.$router);
-          this.$router.push({ name: "home" });
-          this.$message.success(res.data.data.message);
-        } else {
-          this.$message.error(res.data.data.message);
-        }
-      });
-    },
+    // 使用辅助函数引入vuex方法
+    ...mapMutations("User", ["setUserInfo"]),
+    // login() {
+    //   // 调用后台接口
+    //   getMenu(this.form).then((res) => {
+    //     if (res.data.code === 20000) {
+    //       this.$store.commit("clearMenu");
+    //       this.$store.commit("setMenu", res.data.data.menu);
+    //       this.$store.commit("setToken", res.data.data.token);
+    //       this.$store.commit("addMenu", this.$router);
+    //       this.$router.push({ name: "home" });
+    //       this.$message.success(res.data.data.message);
+    //     } else {
+    //       this.$message.error(res.data.data.message);
+    //     }
+    //   });
+    // },
     register() {
       const { userName, password } = this.form;
       this.$api
         .register({ userName, password })
         .then((res) => {
           if (res.data.code === 1) {
-            this.$message.success('注册成功');
+            this.$message.success("注册成功");
           } else if (res.data.code === -1) {
-            this.$message.error('注册失败');
+            this.$message.error("注册失败");
           } else if (res.data.code === 0) {
-            this.$message.error('用户名已存在');
-          } 
+            this.$message.error("用户名已存在");
+          }
         })
         .catch((err) => {
           console.log(err);
@@ -124,12 +128,22 @@ export default {
     },
     login() {
       const { userName, password } = this.form;
-      this.$api.login({ userName, password })
-      .then((res)=>{
+      this.$api.login({ userName, password }).then((res) => {
         console.log(res);
-        let token = res.data.data;
-      })
-    }
+        if (res.data.code === 1) {
+          let userInfo = { username: jwtDecode(res.data.data).username, token: res.data.data };
+          // 向vuex储存登录信息
+          this.setUserInfo(userInfo);
+          // 储存到本地
+          localStorage.setItem('user',JSON.stringify(userInfo))
+          // 跳转
+          this.$router.push('/home')
+          this.$message.success("登录成功");
+        } else {
+          this.$message.error("账号或密码错误");
+        }
+      });
+    },
   },
   /**
    *    实现回车提交
@@ -141,7 +155,6 @@ export default {
   created() {
     window.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        console.log(e);
         this.login();
       } else return;
     });
