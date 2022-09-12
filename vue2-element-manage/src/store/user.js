@@ -4,7 +4,7 @@ export default {
   namespaced: true,
   state: {
     userinfo: {
-      user: "",
+      username: "",
       token: "",
     },
   },
@@ -29,7 +29,7 @@ export default {
     },
     clearUserInfo(state, payload) {
       state.userinfo = {
-        user: "",
+        username: "",
         token: "",
       };
     },

@@ -22,9 +22,10 @@
     <!-- 下拉菜单 -->
     <div class="r-content">
       <el-dropdown trigger="click">
-        <span>
+        <div>
+          <span class="username">{{ username }}</span>
           <img class="user" :src="userImg" alt="用户头像" />
-        </span>
+        </div>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item @click.native="jumpTo">个人中心</el-dropdown-item>
           <el-dropdown-item @click.native="logOut">退出</el-dropdown-item>
@@ -55,13 +56,22 @@ header {
 }
 
 .r-content {
-  display: flex;
+  .el-dropdown-selfdefine {
+    height: auto;
+    display: flex;
+    align-items: center;
+    .user {
+      width: 40px;
+      height: 40px;
 
-  .user {
-    width: 40px;
-    height: 40px;
-    border: solid #fff 1px;
-    border-radius: 50%;
+      border: solid #fff 1px;
+      border-radius: 50%;
+    }
+    .username {
+      margin: 1rem;
+      font-size: 1rem;
+      color: #fff;
+    }
   }
 }
 </style>
@@ -87,7 +97,7 @@ export default {
     },
     jumpTo() {
       this.$router.push({ name: "usercenter" });
-    }
+    },
   },
   computed: {
     // 使用对象展开运算符将mapState内的数据展开至计算属性中
@@ -95,11 +105,12 @@ export default {
       // 获取tabsList数组
       tags: (state) => state.Tab.tabsList,
       icon: (state) => state.Tab.iconFold,
+      username: (state) => state.User.userinfo.username,
     }),
     // 监听路由（除首页），供面包屑组件遍历渲染
     routes() {
       return this.$route.matched.filter((item) => {
-        return (item.name !== "layout") && (item.name !== "home") 
+        return item.name !== "layout" && item.name !== "home";
       });
     },
   },
