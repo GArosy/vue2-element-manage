@@ -93,7 +93,7 @@ export default {
   },
   methods: {
     // 使用辅助函数引入vuex方法
-    ...mapMutations("User", ["setUserInfo"]),
+    ...mapMutations("User", ["setToken"]),
     // login() {
     //   // 调用后台接口
     //   getMenu(this.form).then((res) => {
@@ -127,22 +127,31 @@ export default {
         });
     },
     login() {
-      const { userName, password } = this.form;
-      this.$api.login({ userName, password }).then((res) => {
-        console.log(res);
-        if (res.data.code === 1) {
-          let userInfo = { username: jwtDecode(res.data.data).username, token: res.data.data };
-          // 向vuex储存登录信息
-          this.setUserInfo(userInfo);
-          // 储存到本地
-          localStorage.setItem('user',JSON.stringify(userInfo))
-          // 跳转
-          this.$router.push('/home')
-          this.$message.success("登录成功");
-        } else {
-          this.$message.error("账号或密码错误");
-        }
-      });
+      if (this.form.userName === "" || this.form.password === "") {
+        this.$message.error("账号或密码不能为空");
+      } else {
+        const { userName, password } = this.form;
+        this.$api
+          .login({ userName, password })
+          .then((res) => {
+            // console.log(res);
+            console.log(res.data.menu);
+            let token = res.data.data;
+            // 向vuex储存登录信息
+            this.setToken(token);
+            // 储存到本地
+            localStorage.setItem("token", token);
+            // 跳转
+            this.$router.push("/home");
+            this.$store.commit("setMenu", JSON.stringify(res.data.menu));
+            // this.$store.commit("addMenu", this.$router);
+            this.$message.success("登录成功");
+          })
+          .catch((e) => {
+            console.log(e);
+            this.$message.error("账号或密码错误");
+          });
+      }
     },
   },
   /**

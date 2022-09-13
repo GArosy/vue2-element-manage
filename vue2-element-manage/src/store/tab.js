@@ -17,8 +17,8 @@ export default {
     },
     // 菜单权限相关
     setMenu(state, value) {
-      state.menu = value;
-      Cookie.set("menu", JSON.stringify(value));
+      state.menu = JSON.parse(value);
+      Cookie.set("menu", value);
     },
     clearMenu(state) {
       state.menu = [];
@@ -30,6 +30,7 @@ export default {
         return;
       }
       const menu = JSON.parse(Cookie.get("menu"));
+      console.log(menu);
       state.menu = menu;
       const manuArray = [];
       menu.forEach((item) => {
