@@ -83,7 +83,6 @@ export default {
   },
   computed: {
     noChildren() {
-      console.log(this.asyncMenu);
       return this.asyncMenu.filter((item) => !item.children);
     },
     hasChildren() {

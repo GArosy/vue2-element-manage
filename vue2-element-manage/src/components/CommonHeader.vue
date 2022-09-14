@@ -79,6 +79,7 @@ header {
 <script>
 // 引入vuex辅助函数mapState生成计算属性
 import { mapState } from "vuex";
+import jwtDecode from "jwt-decode";
 export default {
   name: "CommonHeader",
   data() {
@@ -91,8 +92,9 @@ export default {
       this.$store.commit("collapseMenu");
     },
     logOut() {
-      this.$store.commit("clearToken"); // 清除token
-      this.$store.commit("clearMenu"); // 清除menu
+      // this.$store.commit("clearToken"); // 清除token
+      // this.$store.commit("clearMenu"); // 清除menu
+      this.$store.commit("User/clearToken"); // 清除token
       this.$router.push({ name: "login" }); // 跳转至登陆页面
     },
     jumpTo() {
@@ -105,8 +107,10 @@ export default {
       // 获取tabsList数组
       tags: (state) => state.Tab.tabsList,
       icon: (state) => state.Tab.iconFold,
-      username: (state) => state.User.userinfo.username,
     }),
+    username() {
+      return jwtDecode(localStorage.getItem("token")).username;
+    },
     // 监听路由（除首页），供面包屑组件遍历渲染
     routes() {
       return this.$route.matched.filter((item) => {

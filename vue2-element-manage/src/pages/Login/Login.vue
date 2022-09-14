@@ -135,7 +135,6 @@ export default {
           .login({ userName, password })
           .then((res) => {
             // console.log(res);
-            console.log(res.data.menu);
             let token = res.data.data;
             // 向vuex储存登录信息
             this.setToken(token);

@@ -30,7 +30,6 @@ export default {
         return;
       }
       const menu = JSON.parse(Cookie.get("menu"));
-      console.log(menu);
       state.menu = menu;
       const manuArray = [];
       menu.forEach((item) => {
