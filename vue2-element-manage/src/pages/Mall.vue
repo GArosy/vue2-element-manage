@@ -229,7 +229,7 @@ export default {
       },
 
       // Table数据
-      tableType: 'mall',
+      tableType: "mall",
       tableData: [],
       //   表头
       tableLabel: [
@@ -338,6 +338,9 @@ export default {
           this.config.total = res.data.count;
           this.config.loading = false;
           // console.log(res);
+        })
+        .catch((e) => {
+          console.log(e);
         });
     },
     // 点击编辑商品

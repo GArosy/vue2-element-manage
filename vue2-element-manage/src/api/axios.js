@@ -30,11 +30,11 @@ class HttpRequest {
     // 添加请求拦截器
     instance.interceptors.request.use(
       function (config) {
-        const token = JSON.parse(localStorage.getItem("user")).token;
+        const token = localStorage.getItem("token");
         // console.log(token);
         // 在发送请求之前做些什么
         if (token) {
-          config.headers.Authorization = token;
+          config.headers.authorization = 'Bearer ' + token;
         }
         return config;
       },
@@ -58,8 +58,10 @@ class HttpRequest {
         if (error.response) {
           switch (error.response.status) {
             case 401:
+              console.log('请重新登录');
+              console.log(router);
               router.replace({
-                path: "login",
+                path: "/login",
                 query: { redirect: router.currentRoute.fullPath }, // 将跳转的路由path作为参数，登录成功后跳转到该路由
               });
               break;

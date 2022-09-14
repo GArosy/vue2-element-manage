@@ -3,10 +3,7 @@ import Cookie from "js-cookie";
 export default {
   namespaced: true,
   state: {
-    userinfo: {
-      username: "",
       token: "",
-    },
   },
   mutations: {
     // 设置token
@@ -24,14 +21,12 @@ export default {
     //     state.token = state.token || Cookie.get('token')
     // }
 
-    setUserInfo(state, payload) {
-      state.userinfo = payload;
+    setToken(state, payload) {
+      state.token = payload;
     },
-    clearUserInfo(state, payload) {
-      state.userinfo = {
-        username: "",
-        token: "",
-      };
+    clearToken(state, payload) {
+      state.token="";
+      localStorage.clear('token')
     },
   },
 };

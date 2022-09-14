@@ -80,23 +80,23 @@ const router = new VueRouter({
 });
 
 // 创建全局路由守卫，监听页面
-router.beforeEach((to, from, next) => {
-  console.log("from", from, "\n", "to", to);
-  // 获取已保存的cookie，页面刷新后可以保留登录状态
-  // store.commit("getToken");
-  // 1. 判断要跳转的页面是否需要登录
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    // 2. 判断用户是否已经登录
-    const token = store.state.User.userinfo.token;
-    if (token) {
-      next()
-    } else {
-      next({name: 'login'})
-    }
-  } else {  // 不需要登录
-    next()
-  }
-});
+// router.beforeEach((to, from, next) => {
+//   console.log("from", from, "\n", "to", to);
+//   // 获取已保存的cookie，页面刷新后可以保留登录状态
+//   // store.commit("getToken");
+//   // 1. 判断要跳转的页面是否需要登录
+//   if (to.matched.some(record => record.meta.requiresAuth)) {
+//     // 2. 判断用户是否已经登录
+//     const token = localStorage.getItem("token");
+//     if (token) {
+//       next()
+//     } else {
+//       next({name: 'login'})
+//     }
+//   } else {  // 不需要登录
+//     next()
+//   }
+// });
 
 // 导出
 export default router;
