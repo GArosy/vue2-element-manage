@@ -709,9 +709,8 @@
       }
     }
     ```
-  ```
 
-  ```
+
 
   - 定义HttpRequest class，添加属性和方法
   
@@ -3503,7 +3502,7 @@ module.exports = $mysql.createConnection(config);  // mysql.createConnection 方
 
    devServer.proxy的作用实际上是**将前后端放到同一个域**里，从而消除了跨域的问题。 过程可以概括为：
 
-   1. proxy检查我们的请求的url ： /api/todos有没有代理标识/api，如果有的话，在url前加上代理路径，即整个url为http://localhost:3000/api/api/todos
+   1. proxy检查我们的请求的url `/api/todos`有没有代理标识/api，如果匹配的话，在url前加上代理路径，即整个url为http://localhost:3000/api/api/todos
    
    2. pathRewrite中的^/api会把代理标识/api替换为空，即整个url变为：http://localhost:3000/api/todos
    
@@ -4358,5 +4357,300 @@ set GLOBAL  wait_timeout=600;
     },
   },
   ```
+
+  
+
+## 9-3
+
+### 重写注册登录功能
+
+实现思路
+
+1. 首次登录时，后端服务器判断用户账号密码正确之后，根据用户名、定义好的秘钥、过期时间生成 token ，返回给前端；
+2. 前端拿到后端返回的 token ,存储在 localStorage 和 Vuex 里；
+3. 前端每次路由跳转，判断 localStorage 有无 token ，没有则跳转到登录页，有则请求获取用户信息，改变登录状态；
+4. 每次请求接口，在 Axios 请求头里携带 token;
+5. 后端接口判断请求头有无 token，没有或者 token 过期，返回401；
+6. 前端得到 401 状态码，重定向到登录页面。
+
+前端
+
+- 在Login页面中添加注册按钮，并编写对应接口和方法
+
+- 登录成功后，前端需要：
+
+  1. 使用localStorage储存用户登录信息（持久化）
+
+     ```js
+     .login({ userName, password })
+       .then((res) => {
+       // ...
+       localStorage.setItem("token", token);
+       // ...
+     }
+     ```
+
+  2. 跳转页面并弹框
+
+     ```js
+     .login({ userName, password })
+       .then((res) => {
+       // ...
+       this.$router.push('/home')
+     	this.$message.success("登录成功");
+       // ...
+     }
+     ```
+
+  3. 页面刷新后vuex读取localStorage
+
+     ```js
+     // main.js
+     let user = localStorage.getItem('user')
+     if (user) {
+       store.commit('User/setUserInfo', JSON.parse(user))
+     }
+     ```
+
+- 为axios添加拦截器，
+
+  - 请求拦截器：每次访问后台接口时都带上token以便后台验证
+  
+  ```js
+  instance.interceptors.request.use(
+      function (config) {
+        const token = localStorage.getItem("token");
+        // 在发送请求之前做些什么
+        if (token) {
+          config.headers.authorization = 'Bearer ' + token;
+        }
+        return config;
+      },
+      function (error) {
+        // 对请求错误做些什么
+        return Promise.reject(error);
+      }
+  );
+  ```
+  
+  - 响应拦截器：拦截token错误导致的401，并重定向至登陆页面
+  
+  ```js
+  instance.interceptors.response.use(
+    function (response) {
+      // console.log(response, 'response');
+      // 对响应数据做点什么
+      return response;
+    },
+    function (error) {
+      // 对响应错误做点什么
+      if (error.response) {
+        switch (error.response.status) {
+          case 401:
+            console.log('请重新登录');
+            router.replace({
+              path: "/login",
+              query: { redirect: router.currentRoute.fullPath }, // 将跳转的路由path作为参数，登录成功后跳转到该路由
+            });
+            break;
+          default:
+            break;
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+  ```
+  
+  
+
+
+
+后端
+
+- 新建user.js路由模块并挂载
+
+- 编写登录注册接口
+
+- 生成token：引入jsonwebtoken依赖
+
+  > Jwt 是一种**生成**token，或者**解析**token返回对象的工具，登陆验证通过后服务器返回 token 给前端，前端通过 token 访问资源。 
+  >
+  > jwt有3个组成部分，每部分通过点号来分割 `header.payload.signature`
+  >
+  > - 头部(header) 是一个 JSON 对象，描述 JWT 的元数据，通常是下面的样子
+  >
+  >   ```
+  >   {
+  >       'alg': "HS256",
+  >       'typ': "JWT"
+  >   }
+  >   ```
+  >
+  > - 载荷(payload) 是一个 JSON 对象，用来存放实际需要传递的数据
+  >
+  >   ```
+  >   {
+  >       "sub": '1234567890',
+  >       "name": 'john',
+  >       "admin":true
+  >   }
+  >   ```
+  >
+  > - 签证(signature) 对header和payload使用密钥进行签名，防止数据篡改。
+
+  登录接口生成token：
+
+  ```js
+  // 生成token：
+  // jwt.sign(payload, secretOrPrivateKey, [options, callback])
+  let token = jwt.sign(
+    {userame: data[0].userName},
+    secret.jwtSecret, // 引入密钥
+    {expiresIn: 30} // 签署30s令牌期限
+  );
+  ```
+
+  其中options：
+
+  > - algorithm：加密算法（默认值：HS256）
+  > - expiresIn：以秒表示或描述时间跨度zeit / ms的字符串。如60，"2 days"，"10h"，"7d"，Expiration time，过期时间
+  > - notBefore：以秒表示或描述时间跨度zeit / ms的字符串。如：60，"2days"，"10h"，"7d"
+  > - audience：Audience，观众
+  > - issuer：Issuer，发行者
+  > - jwtid：JWT ID
+  > - subject：Subject，主题
+  > - noTimestamp
+  > - header
+
+- 验证token：
+
+  此前针对token的验证放在了前端，利用路由守卫实现：
+
+  ```js
+  // index.js
+  router.beforeEach((to, from, next) => {
+    console.log("from", from, "\n", "to", to);
+    // 获取已保存的cookie，页面刷新后可以保留登录状态
+    // store.commit("getToken");
+    // 1. 判断要跳转的页面是否需要登录
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+      // 2. 判断用户是否已经登录
+      const token = localStorage.getItem("token");
+      if (token) {
+        next()
+      } else {
+        next({name: 'login'})
+      }
+    } else {  // 不需要登录
+      next()
+    }
+  });
+  ```
+
+  但前端无法获取后端生成token的密钥，只能解码token所带的base64编码的payload信息判断是否过期，对于二次修改后的token并无识别能力，安全性堪忧。
+
+  因此我们将token验证转到后台执行，这需要jsonwebtoken的verify函数负责：
+
+  
+
+- 封装 jsonwebtoken token工具
+
+  ```js
+  const jwt = require("jsonwebtoken");
+  const secret = require("./jwtsecret");
+  
+  const Token = {
+    // 加密函数
+    // 生成token：jwt.sign(payload, secretOrPrivateKey, [options, callback])
+    encrypt(data, time) {
+      return jwt.sign(
+        data,
+        secret.jwtSecret, // 引入密钥
+        { expiresIn: time } // 签署time s令牌期限
+      );
+    },
+    // 验证中间件
+    // jwt.verify(token,str) 参数token表示需要解密的令牌，str为密钥
+    decrypt(req, res, next) {
+      let token = req.headers.authorization;
+      token = token ? token.split(" ")[1] : null;
+      if (!token) {
+        return res.status(401).end();
+      } else {
+        try {
+          let data = jwt.verify(token, secret.jwtSecret);
+          req.auth = data;
+          next();
+        } catch (error) {
+          console.log(error);
+          if (error.name === "UnauthorizedError") {
+            return res.status(401).send("invalid token...");
+          } else if (error.name === "TokenExpiredError") {
+            return res.status(401).send("token expired...");
+          }else{
+            next(error);
+          }
+        }
+      }
+    },
+  };
+  
+  module.exports = Token;
+  ```
+
+  其中encrypt为生成token的函数，decrypt为使用原生jwt编写的验证token的**中间件**。但原生jwt的中间件只能针对单个接口或全局挂载，无法使用白名单机制。
+
+  express针对jsonwebtoken封装的express-jwt中间件可以做到全局挂载验证的同时，使用 `unless` 排除不需要验证的接口，维护更方便。
+
+  > 7版本后的express-jwt无法像之前版本一样直接导入使用（网络上大部分教程为旧版），需要在express-jwt中将其解构出来再使用。
+
+  此项目中全部使用此中间件处理验证token，以下是我二次封装后的express-jwt：
+
+  ```js
+  const { expressjwt } = require("express-jwt");
+  const secret = require("./jwtsecret");
+  
+  module.exports =  expressjwt({
+    // 加密时所用的密匙
+    secret: secret.jwtSecret,
+    // 设置算法
+    algorithms: ["HS256"],
+    // 无token请求不进行解析，并且抛出异常
+    credentialsRequired: false,
+  }).unless({
+    // 白名单
+    path: ["/api/user/login", "/api/user/register"],
+  });
+  ```
+
+  挂载到全局，并添加错误处理：
+
+  ```js
+  // app.js
+  
+  //...
+  // 配置全局token验证和白名单
+  app.use(expressjwt);
+  
+  // token错误处理
+  app.use(function (err, req, res, next) {
+    if (err.name === "UnauthorizedError") {
+      res.status(401).send("invalid token...");
+    } else if (err.name === "TokenExpiredError") {
+      return res.status(401).send("token expired...");
+    } else {
+      next(err);
+    }
+  });
+  
+  //...
+  ```
+
+  ==注意：所有的token验证中间件都要放在路由配置之前！== 
+
+  此外，若发生后端无法接收到token的情况，请检查CORS配置中 `"Access-Control-Allow-Headers"` 是否添加了 `Authorization` 字段。
+
+  
 
   
